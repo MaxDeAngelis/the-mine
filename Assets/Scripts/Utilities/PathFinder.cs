@@ -12,19 +12,21 @@ public class PathFinder {
 	private Dictionary<Vector3, PathNode> _closedNodes = new Dictionary<Vector3, PathNode>();
 	private List<PathNode> _currentPath;
 
+    private List<Node> _highlightedNodes = new List<Node>();
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	PathNode _findNext(PathNode currentNode, PathNode finish) {
         /* DEBUG */ MapManager.Instance.setNodeMarker(currentNode.getNode(), true, Color.red, "");
-		/* DEBUG */ //MapManager.Instance.showPathData(Color.red, -1f, currentNode.getG(), currentNode.getH());
+        /* DEBUG */ _highlightedNodes.Add(currentNode.getNode());
+
 		PathNode returnNode = null;
 		Vector3 currentPosition = currentNode.getPosition();
 		Vector3 finishPosition = finish.getPosition();
 
 		// Loop over surrounding nodes to find path
 		foreach (Node individualNode in currentNode.getSurroundingNodes()) {
-			//individualNode.setMarker(true, Color.yellow);
 			Vector3 individualPosition = individualNode.transform.position;
 			float TempG = currentNode.getG();
 			float TempH = Vector3.Distance(individualPosition, finishPosition);
@@ -57,6 +59,17 @@ public class PathFinder {
 		}
 		return returnNode;
 	}
+
+    private void _clearPathHighlight() {
+        if (_highlightedNodes.Count > 0) {
+            foreach (Node individualNode in _highlightedNodes) {
+                MapManager.Instance.setNodeMarker(individualNode, false, Color.red, "");
+                MapManager.Instance.setNodeMarker(individualNode, false, Color.blue, "");
+            }
+            _highlightedNodes.Clear();
+        }
+    }
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,8 +80,7 @@ public class PathFinder {
 	/// <param name="start">Start path node</param>
 	/// <param name="finish">Finish path node</param>
 	public bool findPath(Node start, Node finish) {
-        /* DEBUG */ MapManager.Instance.clearAllNodeMarkers(Color.red);
-        /* DEBUG */ MapManager.Instance.clearAllNodeMarkers(Color.blue);
+        /* DEBUG */ _clearPathHighlight();
 
   		bool isPathFound = false;
 		float initialH = Vector3.Distance(start.transform.position, finish.transform.position);
@@ -157,8 +169,7 @@ public class PathFinder {
 	/// Called to nullify the current object
 	/// </summary>
 	public void nullify() {
-		/* DEBUG */ //GameManager.Instance.clearAllPathNodeScores();
-		/* DEBUG */ //GameManager.Instance.clearAllNodeColor();
+        /* DEBUG */ _clearPathHighlight();
 		_closedNodes.Clear();
 		_openNodes.Clear();
 		_currentPath.Clear();
@@ -168,6 +179,7 @@ public class PathFinder {
 	public void highlight() {
 		int count = 0;
 		foreach(PathNode node in _currentPath) {
+            /* DEBUG */ _highlightedNodes.Add(node.getNode());
             /* DEBUG */ MapManager.Instance.setNodeMarker(node.getNode(), false, Color.red, "");
             string pathData = count + "\nF: " + node.getF() + "\nG: " + node.getG() + "\nH: " + node.getH();
             /* DEBUG */ MapManager.Instance.setNodeMarker(node.getNode(), true, Color.blue, pathData);

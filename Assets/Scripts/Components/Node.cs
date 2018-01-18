@@ -7,7 +7,7 @@ public class Node : MonoBehaviour {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    public NODE_TYPE type;
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@ public class Node : MonoBehaviour {
 	/// Called when the game object starts
 	/// </summary>
 	private void Start () {
+        _marker = gameObject.FindChildWithTag("Marker").transform.GetComponent<SpriteRenderer>();
+        _marker.material.color = Color.white;
+        _marker.gameObject.FindChildWithTag("Marker-Text").GetComponent<Renderer>().sortingLayerName = "Marker-Text";
 	}
 
 	/// <summary>
@@ -54,18 +57,17 @@ public class Node : MonoBehaviour {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public void initalize() {
-		_marker = gameObject.FindChildWithTag("Marker").transform.GetComponent<SpriteRenderer>();
-		_marker.material.color = Color.white;
-        _marker.gameObject.FindChildWithTag("Marker-Text").GetComponent<Renderer>().sortingLayerName = "Marker-Text";
-	}
+
+    public void destroy() {
+        Destroy(gameObject);
+    }
 
 	public List<Node> getSurroundingNodes() {
 		return MapManager.Instance.getSurroundingNodes(this);
 	}
 
 	public bool isWalkable() {
-		return true;
+        return (type == NODE_TYPE.Tunnel);
 	}
 
 	/// <summary>

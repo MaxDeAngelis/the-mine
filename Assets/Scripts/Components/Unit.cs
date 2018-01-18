@@ -38,7 +38,6 @@ public class Unit : MonoBehaviour {
 			_currentJob = JobManager.Instance.getJob();
 
 			if (_currentJob != null) {
-				
 				_state = UNIT_STATE.Busy;
 			}
 		} else if (isMoving()) {
@@ -49,10 +48,11 @@ public class Unit : MonoBehaviour {
 
 			if (Vector3.Distance (transform.position, target) < 0.05f) {
 				transform.position = target;
-				if (_pathFinder.isEmpty ()) {
+				if (_pathFinder.isEmpty()) {
 					GetComponent<Rigidbody2D>().velocity = new Vector3(0, 0, 0);
 					_pathFinder.nullify();
-					_state = UNIT_STATE.Idle;
+                    _state = UNIT_STATE.Working;
+                    StartCoroutine(_doJob());
 				} else {
 					_nextPathNode = _pathFinder.getNextNode();
 				}
@@ -93,6 +93,22 @@ public class Unit : MonoBehaviour {
 
 		return MapManager.Instance.getNode(locationStandingOn);
 	}
+
+    /// <summary>
+    /// Called to actually do the work of the current Job
+    /// </summary>
+    /// <returns>The job.</returns>
+    private IEnumerator _doJob() {
+        Vector3 target = _currentJob.getLocation();
+        target.y = transform.position.y;
+
+        // Yield for the duration of the boost
+        yield return new WaitForSeconds(_currentJob.getDuration());
+
+        _currentJob.complete();
+        _currentJob = null;
+        _state = UNIT_STATE.Idle;
+    }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///

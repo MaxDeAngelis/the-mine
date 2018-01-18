@@ -110,7 +110,6 @@ public class MapManager : MonoBehaviour {
 		newNode.transform.position = location;
 		newNode.transform.parent = parent;
 		Node mapNode = newNode.GetComponent<Node>();
-		mapNode.initalize();
 
 		_mapNodes.Add(location, mapNode);
 	}
@@ -222,6 +221,25 @@ public class MapManager : MonoBehaviour {
 
 		return returnList;
 	}
+
+    /// <summary>
+    /// Adds the map node.
+    /// </summary>
+    /// <param name="newNode">New node.</param>
+    public void addMapNode(Node newNode) {
+        _mapNodes.Add(newNode.transform.position, newNode);
+        newNode.transform.parent = mapContainer;
+    }
+
+    /// <summary>
+    /// Removes the map node.
+    /// </summary>
+    /// <param name="node">Node.</param>
+    public void removeMapNode(Node node) {
+        if (_mapNodes.ContainsKey(node.transform.position)) {
+            _mapNodes.Remove(node.transform.position);
+        }
+    }
 
 	/// <summary>
 	/// Called to change the color of the given node

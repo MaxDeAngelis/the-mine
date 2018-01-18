@@ -50,11 +50,14 @@ public class JobManager : MonoBehaviour {
 		bool shouldHighlight = false;
 
 		switch(_commandType) {
-		case JOB_TYPE.Move:
-			if (node.isWalkable()) {
-				shouldHighlight = true;
-			}
-			break;
+            case JOB_TYPE.Build:
+                shouldHighlight = true;
+                break;
+    		case JOB_TYPE.Move:
+    			if (node.isWalkable()) {
+    				shouldHighlight = true;
+    			}
+    			break;
 		}
 
 		return shouldHighlight;
@@ -161,11 +164,18 @@ public class JobManager : MonoBehaviour {
 	private void _createJob(Node node) {
 		Job newJob = null;
 		switch(_commandType) {
-		case JOB_TYPE.Move:
-			if (node.isWalkable()) {
-				newJob = new Move(node, 0, 0);
-			}
-			break;
+            case JOB_TYPE.Build:
+                switch (_buildSubType) {
+                    case BUILD_SUB_TYPE.Tunnel:
+                        newJob = new BuildTunnel(node, 3, 0);
+                        break;
+                }
+                break;
+    		case JOB_TYPE.Move:
+    			if (node.isWalkable()) {
+    				newJob = new Move(node, 0, 0);
+    			}
+    			break;
 		}
 
 		_registerJob(newJob);
@@ -265,12 +275,13 @@ public class JobManager : MonoBehaviour {
 		_isMouseDown = true;
 
 		switch(_commandType) {
-		case JOB_TYPE.Move:
-			break;
-		default:
-			_isMultiSelect = true;	
-			_multiSelectStart = node;
-			break;
+            case JOB_TYPE.Build:
+    		case JOB_TYPE.Move:
+    			break;
+    		default:
+    			_isMultiSelect = true;	
+    			_multiSelectStart = node;
+    			break;
 		}
 	}
 }

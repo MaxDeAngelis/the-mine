@@ -7,7 +7,7 @@ public class ItemLibrary : MonoBehaviour {
 	/// 								     		PUBLIC VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static ItemLibrary Instance;
-	public GameObject grassBlock;
+	public GameObject miner;
 	public GameObject tunnelBlock;
 	public GameObject stoneBlock;
 
