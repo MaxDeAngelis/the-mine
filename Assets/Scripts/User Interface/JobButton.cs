@@ -4,6 +4,7 @@ using System.Collections;
 public class JobButton : MonoBehaviour {
 	public JOB_TYPE type;
 	public BUILD_SUB_TYPE buildSubType;
+    protected Vector3 _scaleMod = new Vector3(0.2f, 0.2f, 0.2f);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///
@@ -19,7 +20,7 @@ public class JobButton : MonoBehaviour {
 	/// </summary>
 	public void hover() {
 		Vector3 scale = gameObject.transform.localScale;
-		scale += new Vector3(0.2f, 0.2f, 0.2f);
+        scale += _scaleMod;
 		gameObject.transform.localScale = scale;
 	}
 
@@ -28,7 +29,7 @@ public class JobButton : MonoBehaviour {
 	/// </summary>
 	public void blur() {
 		Vector3 scale = gameObject.transform.localScale;
-		scale -= new Vector3(0.2f, 0.2f, 0.2f);
+        scale -= _scaleMod;
 		gameObject.transform.localScale = scale;
 	}
 }

@@ -2,10 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class BuildTunnel : Build {
+public class BuildShaft : Build {
     private Node _nodeToReplace;
-    public BuildTunnel(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.tunnelBlock) {
-        _title = "Build \nTunnel";
+    public BuildShaft(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.shaftBlock) {
+        _title = "Build \nShaft";
         _nodeToReplace = location;
     }
 
@@ -18,12 +18,13 @@ public class BuildTunnel : Build {
         potentialLocations = MapManager.Instance.getSurroundingNodes(_location, false);
 
         List<Node> workLocations = new List<Node>();
+        workLocations.Add(_location);
 
-        Vector3 left = _location.transform.position - Vector3.left;
-        Vector3 right = _location.transform.position - Vector3.right;
+        Vector3 top = _location.transform.position + Vector3.up;
+        Vector3 bottom = _location.transform.position + Vector3.down;
 
         foreach (Node node in potentialLocations) {
-            if (node.isTravelable() && (node.transform.position == left || node.transform.position == right)) {
+            if (node.isTravelable()) {
                 workLocations.Add(node);
             }
         }

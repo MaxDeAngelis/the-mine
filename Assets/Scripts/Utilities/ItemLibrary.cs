@@ -10,6 +10,7 @@ public class ItemLibrary : MonoBehaviour {
 	public GameObject miner;
 	public GameObject tunnelBlock;
 	public GameObject stoneBlock;
+    public GameObject shaftBlock;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE FUNCTIONS											     ///

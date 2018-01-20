@@ -8,6 +8,12 @@ public class Node : MonoBehaviour {
 	/// 								     		PUBLIC VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public NODE_TYPE type;
+
+    public GameObject accentTop;
+    public GameObject accentRight;
+    public GameObject accentBottom;
+    public GameObject accentLeft;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +63,32 @@ public class Node : MonoBehaviour {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public void updateAccents() {
+        if (type != NODE_TYPE.Stone) {
+            return;
+        }
+
+        List<Node> nodes = getSurroundingNodes();
+
+        Vector3 right = transform.position + Vector3.right;
+        Vector3 top = transform.position + Vector3.up;
+        Vector3 bottom = transform.position + Vector3.down;
+        Vector3 left = transform.position + Vector3.left;
+
+        foreach (Node node in nodes) {
+            if (node.isTravelable()) {
+                if (node.transform.position == right) {
+                    accentRight.SetActive(true);
+                } else if (node.transform.position == top) {
+                    accentTop.SetActive(true);
+                } else if (node.transform.position == bottom) {
+                    accentBottom.SetActive(true);
+                } else if (node.transform.position == left) {
+                    accentLeft.SetActive(true);
+                }
+            }
+        }
+    }
 
     public void destroy() {
         Destroy(gameObject);
@@ -65,6 +97,10 @@ public class Node : MonoBehaviour {
 	public List<Node> getSurroundingNodes() {
 		return MapManager.Instance.getSurroundingNodes(this);
 	}
+
+    public bool isTravelable() {
+        return (type == NODE_TYPE.Tunnel || type == NODE_TYPE.Shaft);
+    }
 
 	public bool isWalkable() {
         return (type == NODE_TYPE.Tunnel);

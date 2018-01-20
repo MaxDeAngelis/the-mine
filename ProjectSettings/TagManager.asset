@@ -46,6 +46,9 @@ TagManager:
   - name: Map
     uniqueID: 398529851
     locked: 0
+  - name: Map-Accent
+    uniqueID: 3071337235
+    locked: 0
   - name: Marker
     uniqueID: 495842599
     locked: 0

@@ -54,7 +54,7 @@ public class JobManager : MonoBehaviour {
                 shouldHighlight = true;
                 break;
     		case JOB_TYPE.Move:
-    			if (node.isWalkable()) {
+                if (node.isTravelable()) {
     				shouldHighlight = true;
     			}
     			break;
@@ -76,37 +76,35 @@ public class JobManager : MonoBehaviour {
 		// If multi select job then loop to highlight all nodes
 		if (_isMultiSelect) {
 			// Get a reference to the X,Z locations of the nodes on the map
-			float baseY = _multiSelectStart.transform.position.y;
 			float startX = _multiSelectStart.transform.position.x;
 			float endX = _hoveredNode.transform.position.x;
-			float startZ = _multiSelectStart.transform.position.z;
-			float endZ = _hoveredNode.transform.position.z;
-
+			float startY = _multiSelectStart.transform.position.y;
+			float endY = _hoveredNode.transform.position.y;
+            float tempX = startX;
 			// Start looping for X values
 			while(true) {
-				float tempZ = startZ;
+				float tempY = startY;
 				// Loop over Z values
 				while(true) {
 					// Get the node based on calculated location
-					Node node = MapManager.Instance.getNode(new Vector3(startX, baseY, tempZ));
+                    Node node = MapManager.Instance.getNode(new Vector3(tempX, tempY, 0f));
 					if (node != null && _shouldNodeHighlight(node)) {
 						_selectedNodes.Add(node);
 					}
-
-					if (tempZ == endZ) {
+					if (tempY == endY) {
 						break;
-					} else if (startZ > endZ) {
-						tempZ--;
+					} else if (startY > endY) {
+						tempY--;
 					} else {
-						tempZ++;
+						tempY++;
 					}
 				}
-				if (startX == endX) {
+                if (tempX == endX) {
 					break;
 				} else if (startX > endX) {
-					startX--;
+                    tempX--;
 				} else {
-					startX++;
+                    tempX++;
 				}
 			}
 		} else if (_shouldNodeHighlight(_hoveredNode)) {
@@ -162,12 +160,16 @@ public class JobManager : MonoBehaviour {
 	/// </summary>
 	/// <param name="node">The node</param>
 	private void _createJob(Node node) {
+        MapManager.Instance.setNodeMarker(node, false, Color.green, "");
 		Job newJob = null;
 		switch(_commandType) {
             case JOB_TYPE.Build:
                 switch (_buildSubType) {
                     case BUILD_SUB_TYPE.Tunnel:
                         newJob = new BuildTunnel(node, 3, 0);
+                        break;
+                    case BUILD_SUB_TYPE.Shaft:
+                        newJob = new BuildShaft(node, 3, 0);
                         break;
                 }
                 break;
@@ -177,7 +179,7 @@ public class JobManager : MonoBehaviour {
     			}
     			break;
 		}
-
+        MapManager.Instance.setNodeMarker(node, true, Color.yellow, newJob.getTitle());
 		_registerJob(newJob);
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -276,6 +278,11 @@ public class JobManager : MonoBehaviour {
 
 		switch(_commandType) {
             case JOB_TYPE.Build:
+                if (_buildSubType == BUILD_SUB_TYPE.Shaft || _buildSubType == BUILD_SUB_TYPE.Tunnel) {
+                }
+                _isMultiSelect = true;  
+                _multiSelectStart = node;
+                break;
     		case JOB_TYPE.Move:
     			break;
     		default:

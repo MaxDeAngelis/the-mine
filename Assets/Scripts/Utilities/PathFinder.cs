@@ -230,7 +230,15 @@ public class PathFinder {
 		}
 
 		public List<Node> getSurroundingNodes() {
-			return _node.getSurroundingNodes();
+            List<Node> tavelable = new List<Node>();
+            List<Node> allNodes = _node.getSurroundingNodes();
+
+            foreach(Node node in allNodes) {
+                if (node.isTravelable()) {
+                    tavelable.Add(node);
+                }
+            }
+            return tavelable;
 		}
 
 		public float getG() {

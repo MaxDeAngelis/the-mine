@@ -94,7 +94,7 @@ public class MapManager : MonoBehaviour {
 					blockToCreate = ItemLibrary.Instance.stoneBlock;
 				} 
 
-				_createMapNode(blockToCreate, nodeLocation, mapContainer);
+				_createMapNode(blockToCreate, nodeLocation);
 			}
 		}
 	}
@@ -105,13 +105,12 @@ public class MapManager : MonoBehaviour {
 	/// <param name="type">Node to create</param>
 	/// <param name="location">The location of the new node</param>
 	/// <param name="parent">The parent container</param>
-	private void _createMapNode(GameObject type, Vector3 location, Transform parent) {
+	private void _createMapNode(GameObject type, Vector3 location) {
 		GameObject newNode = Instantiate(type) as GameObject;
 		newNode.transform.position = location;
-		newNode.transform.parent = parent;
 		Node mapNode = newNode.GetComponent<Node>();
 
-		_mapNodes.Add(location, mapNode);
+        addMapNode(mapNode);
 	}
 
 	/// <summary>
@@ -191,7 +190,7 @@ public class MapManager : MonoBehaviour {
 
 		// Check and add core nodes
 		foreach(Vector3 loc in coreNodes) {
-			if (_mapNodes.ContainsKey(loc) && _mapNodes[loc].isWalkable()) {
+			if (_mapNodes.ContainsKey(loc) /*&& _mapNodes[loc].isWalkable()*/) {
 				returnList.Add(_mapNodes[loc]);
 			}
 		}
@@ -229,6 +228,11 @@ public class MapManager : MonoBehaviour {
     public void addMapNode(Node newNode) {
         _mapNodes.Add(newNode.transform.position, newNode);
         newNode.transform.parent = mapContainer;
+        List<Node> nodes = getSurroundingNodes(newNode);
+
+        foreach (Node node in nodes) {
+            node.updateAccents();
+        }
     }
 
     /// <summary>
