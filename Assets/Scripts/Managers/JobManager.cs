@@ -19,6 +19,7 @@ public class JobManager : MonoBehaviour {
 	private JOB_TYPE _commandType;
 	private BUILD_SUB_TYPE _buildSubType;
 
+    private PathFinder _pathFinder = new PathFinder();
 	private bool _isMouseDown = false;
 	private bool _isMultiSelect = false;
 	private Node _multiSelectStart;
@@ -38,7 +39,7 @@ public class JobManager : MonoBehaviour {
 		}
 		Instance = this;
 
-		InvokeRepeating("_checkBlockedJobs", 5f, 5f);
+		InvokeRepeating("checkBlockedJobs", 5f, 5f);
 	}
 
 	/// <summary>
@@ -119,31 +120,6 @@ public class JobManager : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Called periodically to check if any of the blocked Jobs are now available
-	/// </summary>
-	private void _checkBlockedJobs() {
-		List<Job> unblockedJobs = new List<Job>();
-
-		// Loop over blocked Jobs to find the ones to migrate
-		foreach(Job job in _blockedJobs) {
-			List<Node> jobWorkLocations = job.getWorkLocations();
-
-			if (jobWorkLocations.Count > 0) {
-				unblockedJobs.Add(job);
-			}
-		}
-
-		// Migrate to available
-		foreach(Job job in unblockedJobs) {
-			_blockedJobs.Remove(job);
-			_availableJobs.Add(job);
-		}
-
-		unblockedJobs.Clear();
-		/* DEBUG */ //GameManager.Instance.updateAvailableJobs(_availableJobs);
-	}
-
-	/// <summary>
 	/// Called to register a new Job
 	/// </summary>
 	/// <param name="newJob">New job.</param>
@@ -193,19 +169,54 @@ public class JobManager : MonoBehaviour {
 		_blockedJobs.Add(job);
 	}
 
+    /// <summary>
+    /// Called periodically to check if any of the blocked Jobs are now available
+    /// </summary>
+    public void checkBlockedJobs() {
+        List<Job> unblockedJobs = new List<Job>();
+
+        // Loop over blocked Jobs to find the ones to migrate
+        foreach(Job job in _blockedJobs) {
+            List<Node> jobWorkLocations = job.getWorkLocations();
+
+            if (jobWorkLocations.Count > 0) {
+                unblockedJobs.Add(job);
+            }
+        }
+
+        // Migrate to available
+        foreach(Job job in unblockedJobs) {
+            _blockedJobs.Remove(job);
+            _availableJobs.Add(job);
+        }
+
+        unblockedJobs.Clear();
+        /* DEBUG */ //GameManager.Instance.updateAvailableJobs(_availableJobs);
+    }
+
 	/// <summary>
 	/// Called to get a Job
 	/// </summary>
 	/// <returns>The job</returns>
-	public Job getJob() {
+    public Job getJob(Node currentNode) {
 		Job returnJob = null;
-
+        int jobDistance = -1;
 		if (_availableJobs.Count > 0) {
-			returnJob = _availableJobs[0];
+            foreach (Job job in _availableJobs) {
+                List<Node> workLocations = job.getWorkLocations();
+                foreach (Node node in workLocations) {
+                    _pathFinder.findPath(currentNode, node);
+                }
+                // Find best job for current 
+                if (!_pathFinder.isEmpty() && (jobDistance == -1 || _pathFinder.getLength() < jobDistance)) {
+                    returnJob = job;
+                }
+            }
 			_availableJobs.Remove(returnJob);
 
 			/* DEBUG */ //GameManager.Instance.updateAvailableJobs(_availableJobs);
 		}
+
 		return returnJob;
 	}
 

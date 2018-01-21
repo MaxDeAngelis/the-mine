@@ -19,8 +19,8 @@ public class BuildTunnel : Build {
 
         List<Node> workLocations = new List<Node>();
 
-        Vector3 left = _location.transform.position - Vector3.left;
-        Vector3 right = _location.transform.position - Vector3.right;
+        Vector3 left = _location.transform.position + Vector3.left;
+        Vector3 right = _location.transform.position + Vector3.right;
 
         foreach (Node node in potentialLocations) {
             if (node.isTravelable() && (node.transform.position == left || node.transform.position == right)) {
@@ -41,5 +41,7 @@ public class BuildTunnel : Build {
         MapManager.Instance.addMapNode(_finishedObject.GetComponent<Node>());
 
         _nodeToReplace.destroy();
+
+        JobManager.Instance.checkBlockedJobs();
     }
 }

@@ -57,6 +57,10 @@ public class Job {
 		return _progress;
 	}
 
+    public Node getLocationNode() {
+        return _location;
+    }
+
 	public Vector3 getLocation() {
 		return _location.transform.position;
 	}

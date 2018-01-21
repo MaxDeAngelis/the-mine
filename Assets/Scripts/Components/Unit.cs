@@ -35,7 +35,8 @@ public class Unit : MonoBehaviour {
 		if (isWorking()) {
 			return;
 		} else if (isIdle()) {
-			_currentJob = JobManager.Instance.getJob();
+            Node currentNode = MapManager.Instance.getNode(transform.position);
+            _currentJob = JobManager.Instance.getJob(currentNode);
 
 			if (_currentJob != null) {
 				_state = UNIT_STATE.Busy;
