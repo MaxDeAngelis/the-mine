@@ -18,6 +18,7 @@ public class JobManager : MonoBehaviour {
 
 	private JOB_TYPE _commandType;
 	private BUILD_SUB_TYPE _buildSubType;
+    private PLACE_SUB_TYPE _placeSubType;
 
     private PathFinder _pathFinder = new PathFinder();
 	private bool _isMouseDown = false;
@@ -53,6 +54,11 @@ public class JobManager : MonoBehaviour {
 		switch(_commandType) {
             case JOB_TYPE.Build:
                 shouldHighlight = true;
+                break;
+            case JOB_TYPE.Place:
+                if (node.isWalkable()) {
+                    shouldHighlight = true;
+                }
                 break;
     		case JOB_TYPE.Move:
                 if (node.isTravelable()) {
@@ -139,13 +145,23 @@ public class JobManager : MonoBehaviour {
         MapManager.Instance.setNodeMarker(node, false, Color.green, "");
 		Job newJob = null;
 		switch(_commandType) {
+            case JOB_TYPE.Place:
+                switch (_placeSubType) {
+                    case PLACE_SUB_TYPE.Miner:
+                        newJob = new PlaceMiner(node);
+                        break;
+                    case PLACE_SUB_TYPE.Lamp:
+                        newJob = new PlaceLamp(node, 2, 0);
+                        break;
+                }
+                break;
             case JOB_TYPE.Build:
                 switch (_buildSubType) {
                     case BUILD_SUB_TYPE.Tunnel:
                         newJob = new BuildTunnel(node, 3, 0);
                         break;
                     case BUILD_SUB_TYPE.Shaft:
-                        newJob = new BuildShaft(node, 3, 0);
+                        newJob = new BuildShaft(node, 4, 0);
                         break;
                 }
                 break;
@@ -155,8 +171,13 @@ public class JobManager : MonoBehaviour {
     			}
     			break;
 		}
-        MapManager.Instance.setNodeMarker(node, true, Color.yellow, newJob.getTitle());
-		_registerJob(newJob);
+
+        if (newJob.isInstant()) {
+            newJob.complete();
+        } else {
+            MapManager.Instance.setNodeMarker(node, true, Color.yellow, newJob.getTitle());
+            _registerJob(newJob);
+        }
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///
@@ -232,6 +253,10 @@ public class JobManager : MonoBehaviour {
 		_buildSubType = subType;
 	}
 
+    public void setPlaceSubType(PLACE_SUB_TYPE subType) {
+        _placeSubType = subType;
+    }
+
 	/// <summary>
 	/// Called to handle mouse enter of a map node
 	/// </summary>
@@ -288,14 +313,10 @@ public class JobManager : MonoBehaviour {
 		_isMouseDown = true;
 
 		switch(_commandType) {
-            case JOB_TYPE.Build:
-                if (_buildSubType == BUILD_SUB_TYPE.Shaft || _buildSubType == BUILD_SUB_TYPE.Tunnel) {
-                }
-                _isMultiSelect = true;  
-                _multiSelectStart = node;
-                break;
+            case JOB_TYPE.Place:
     		case JOB_TYPE.Move:
     			break;
+            case JOB_TYPE.Build:
     		default:
     			_isMultiSelect = true;	
     			_multiSelectStart = node;

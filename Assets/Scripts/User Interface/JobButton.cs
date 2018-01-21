@@ -4,6 +4,8 @@ using System.Collections;
 public class JobButton : MonoBehaviour {
 	public JOB_TYPE type;
 	public BUILD_SUB_TYPE buildSubType;
+    public PLACE_SUB_TYPE placeSubType;
+
     protected Vector3 _scaleMod = new Vector3(0.2f, 0.2f, 0.2f);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -13,6 +15,7 @@ public class JobButton : MonoBehaviour {
 		JobManager.Instance.isCommandSelected = true;
 		JobManager.Instance.setCommandType(type);
 		JobManager.Instance.setBuildSubType(buildSubType);
+        JobManager.Instance.setPlaceSubType(placeSubType);
 	}
 
 	/// <summary>

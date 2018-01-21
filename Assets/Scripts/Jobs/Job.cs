@@ -65,6 +65,10 @@ public class Job {
 		return _location.transform.position;
 	}
 
+    public virtual bool isInstant() {
+        return false;
+    }
+
 	/// <summary>
 	/// Called to get all the possable work locations for a given job
 	/// </summary>

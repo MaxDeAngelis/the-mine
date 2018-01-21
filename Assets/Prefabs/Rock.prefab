@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4525406470854426}
   - component: {fileID: 212170805533934862}
-  m_Layer: 8
+  m_Layer: 31
   m_Name: Marker
   m_TagString: Marker
   m_Icon: {fileID: 0}
@@ -85,7 +85,7 @@ GameObject:
   - component: {fileID: 4115417731275236}
   - component: {fileID: 23888471276042976}
   - component: {fileID: 102284510620018904}
-  m_Layer: 8
+  m_Layer: 31
   m_Name: Text
   m_TagString: Marker-Text
   m_Icon: {fileID: 0}
