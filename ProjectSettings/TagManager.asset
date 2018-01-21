@@ -38,7 +38,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Lights
   m_SortingLayers:
   - name: Default
     uniqueID: 0
@@ -57,4 +57,7 @@ TagManager:
     locked: 0
   - name: Unit
     uniqueID: 4245229297
+    locked: 0
+  - name: Light
+    uniqueID: 1211817795
     locked: 0
