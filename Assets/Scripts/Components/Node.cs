@@ -68,7 +68,7 @@ public class Node : MonoBehaviour {
             return;
         }
 
-        List<Node> nodes = getSurroundingNodes();
+        List<Node> nodes = MapManager.Instance.getSurroundingNodes(this);
 
         Vector3 right = transform.position + Vector3.right;
         Vector3 top = transform.position + Vector3.up;
@@ -94,9 +94,9 @@ public class Node : MonoBehaviour {
         Destroy(gameObject);
     }
 
-	public List<Node> getSurroundingNodes() {
-		return MapManager.Instance.getSurroundingNodes(this);
-	}
+    public NODE_TYPE getType() {
+        return type;
+    }
 
     public bool isTravelable() {
         return (type == NODE_TYPE.Tunnel || type == NODE_TYPE.Shaft);

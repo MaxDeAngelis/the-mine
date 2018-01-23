@@ -113,23 +113,21 @@ public class MapManager : MonoBehaviour {
         addMapNode(mapNode);
 	}
 
-	/// <summary>
-	/// Called to check if the two nodes are walkable
-	/// </summary>
-	/// <returns><c>true</c>, if both nodes are walkable, <c>false</c> otherwise.</returns>
-	/// <param name="first">First node location to check</param>
-	/// <param name="second">Second node location to check</param>
-	private bool _isDiagonalAccessible(Vector3 first, Vector3 second) {
-		bool returnValue = false;
+    /// <summary>
+    /// Called to check if the two nodes are walkable
+    /// </summary>
+    /// <returns><c>true</c>, if both nodes are walkable, <c>false</c> otherwise.</returns>
+    /// <param name="first">First node location to check</param>
+    /// <param name="second">Second node location to check</param>
+    private bool _isDiagonalAccessible(Node nodeToCheck, Node testOne, Node testTwo) {
+        bool returnValue = false;
 
-		Node testOne = getNode(first);
-		Node testTwo = getNode(second);
-		if (testOne != null && testTwo != null && testOne.isWalkable() && testTwo.isWalkable()) {
-			returnValue= true;
-		}
+        if (testOne != null && testTwo != null && nodeToCheck.isTravelable() && testOne.isTravelable() && testTwo.isTravelable()) {
+            returnValue= true;
+        }
 
-		return returnValue;
-	}
+        return returnValue;
+    }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///
@@ -159,66 +157,62 @@ public class MapManager : MonoBehaviour {
 		return getSurroundingNodes(root, true);
 	}
 
+    public List<Node> getSurroundingNodes(Node root, bool returnDiagonals) {
+        return getSurroundingNodes(root, returnDiagonals, false);
+    }
+
 	/// <summary>
 	/// Called to get all adjacent nodes to the given node
 	/// </summary>
 	/// <returns>The surrounding nodes</returns>
 	/// <param name="root">The root node to find all adjacent nodes for</param>
 	/// <param name="returnDiagonal">Flag for if the diagonal nodes should be returned</param>
-	public List<Node> getSurroundingNodes(Node root, bool returnDiagonals) {
-		List<Node> returnList = new List<Node>(); 
-		List<Vector3> coreNodes = new List<Vector3>();
-		Vector3 rootPosition = root.transform.position;
-
-		// Modifiers
-		Vector3 TOP = new Vector3(0f, 1f, 0f);
-		Vector3 BOTTOM = new Vector3(0f, -1f, 0f);
-		Vector3 LEFT = new Vector3(-1f, 0f, 0f);
-		Vector3 RIGHT = new Vector3(1f, 0f, 0f);
+    public List<Node> getSurroundingNodes(Node root, bool returnDiagonals, bool checkDiagonalAccessability) {
+        Dictionary<string, Node> foundNodes = new Dictionary<string, Node>();
 
 		// Directly adjacent node locations
-		Vector3 top = rootPosition + TOP;
-		Vector3 bottom = rootPosition + BOTTOM;
-		Vector3 left = rootPosition + LEFT;
-		Vector3 right = rootPosition + RIGHT;
+        Vector3 top = root.transform.position + Vector3.up;
+        Vector3 bottom = root.transform.position + Vector3.down;
+        Vector3 left = root.transform.position + Vector3.left;
+        Vector3 right = root.transform.position + Vector3.right;
 
-		// Add the core nodes
-		coreNodes.Add(top);
-		coreNodes.Add(bottom);
-		coreNodes.Add(left);
-		coreNodes.Add(right);
-
-		// Check and add core nodes
-		foreach(Vector3 loc in coreNodes) {
-			if (_mapNodes.ContainsKey(loc) /*&& _mapNodes[loc].isWalkable()*/) {
-				returnList.Add(_mapNodes[loc]);
-			}
-		}
+        if (_mapNodes.ContainsKey(top)) {
+            foundNodes.Add("TOP", _mapNodes[top]);
+        }
+        if (_mapNodes.ContainsKey(bottom)) {
+            foundNodes.Add("BOTTOM", _mapNodes[bottom]);
+        }
+        if (_mapNodes.ContainsKey(left)) {
+            foundNodes.Add("LEFT", _mapNodes[left]);
+        }
+        if (_mapNodes.ContainsKey(right)) {
+            foundNodes.Add("RIGHT", _mapNodes[right]);
+        }
 
 		// If the diagonal param is set then return diagonal locations
 		if (returnDiagonals) {
 			// Diagonal node locations
-			Vector3 topRight = rootPosition + TOP + RIGHT;
-			Vector3 topLeft = rootPosition + TOP + LEFT;
-			Vector3 bottomRight = rootPosition + BOTTOM + RIGHT;
-			Vector3 bottomLeft = rootPosition + BOTTOM + LEFT;
+            Vector3 topRight = top + Vector3.right;
+            Vector3 topLeft = top + Vector3.left;
+            Vector3 bottomRight = bottom + Vector3.right;
+            Vector3 bottomLeft = bottom + Vector3.left;
 
-			// Check the diagonal nodes to make sure they can be accessed
-			if (_mapNodes.ContainsKey(topRight) && _mapNodes[topRight].isWalkable() && _isDiagonalAccessible(top, right)) {
-				returnList.Add(_mapNodes[topRight]);
-			}
-			if (_mapNodes.ContainsKey(topLeft) && _mapNodes[topLeft].isWalkable() && _isDiagonalAccessible(top, left)) {
-				returnList.Add(_mapNodes[topLeft]);
-			}
-			if (_mapNodes.ContainsKey(bottomRight) && _mapNodes[bottomRight].isWalkable() && _isDiagonalAccessible(bottom, right)) {
-				returnList.Add(_mapNodes[bottomRight]);
-			}
-			if (_mapNodes.ContainsKey(bottomLeft) && _mapNodes[bottomLeft].isWalkable() && _isDiagonalAccessible(bottom, left)) {
-				returnList.Add(_mapNodes[bottomLeft]);
-			}
+            // Check the diagonal nodes to make sure they can be accessed
+            if (_mapNodes.ContainsKey(topRight) && (!checkDiagonalAccessability || _isDiagonalAccessible(_mapNodes[topRight], foundNodes["TOP"], foundNodes["RIGHT"]))) {
+                foundNodes.Add("TOP_RIGHT", _mapNodes[topRight]);
+            }
+            if (_mapNodes.ContainsKey(topLeft) && (!checkDiagonalAccessability || _isDiagonalAccessible(_mapNodes[topLeft], foundNodes["TOP"], foundNodes["LEFT"]))) {
+                foundNodes.Add("TOP_LEFT", _mapNodes[topLeft]);
+            }
+            if (_mapNodes.ContainsKey(bottomRight) && (!checkDiagonalAccessability || _isDiagonalAccessible(_mapNodes[bottomRight], foundNodes["BOTTOM"], foundNodes["RIGHT"]))) {
+                foundNodes.Add("BOTTOM_RIGHT", _mapNodes[bottomRight]);
+            }
+            if (_mapNodes.ContainsKey(bottomLeft) && (!checkDiagonalAccessability || _isDiagonalAccessible(_mapNodes[bottomLeft], foundNodes["BOTTOM"], foundNodes["LEFT"]))) {
+                foundNodes.Add("BOTTOM_LEFT", _mapNodes[bottomLeft]);
+            }
 		}
 
-		return returnList;
+        return new List<Node>(foundNodes.Values);
 	}
 
     /// <summary>

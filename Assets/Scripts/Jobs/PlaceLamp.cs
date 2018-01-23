@@ -17,4 +17,8 @@ public class PlaceLamp : Build {
 
         return workLocations;
     }
+
+    public override bool isValidLocation() {
+        return (_location.getType() == NODE_TYPE.Tunnel);
+    }
 }

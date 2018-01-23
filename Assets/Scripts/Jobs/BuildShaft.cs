@@ -45,4 +45,25 @@ public class BuildShaft : Build {
 
         JobManager.Instance.checkBlockedJobs();
     }
+
+    public override bool isValidLocation() {
+        bool isValid = false;
+        if (_location.getType() == NODE_TYPE.Stone) {
+            isValid = true;
+            List<Node> locations = MapManager.Instance.getSurroundingNodes(_location);
+
+            Vector3 top = _location.transform.position + Vector3.up;
+            Vector3 bottom = _location.transform.position + Vector3.down;
+
+            foreach (Node node in locations) {
+                if (node.transform.position != top && node.transform.position != bottom) {
+                    if (node.getType() == NODE_TYPE.Shaft) {
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return isValid;
+    }
 }

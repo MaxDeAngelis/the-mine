@@ -231,7 +231,7 @@ public class PathFinder {
 
 		public List<Node> getSurroundingNodes() {
             List<Node> tavelable = new List<Node>();
-            List<Node> allNodes = _node.getSurroundingNodes();
+            List<Node> allNodes = MapManager.Instance.getSurroundingNodes(_node, true, true);
 
             foreach(Node node in allNodes) {
                 if (node.isTravelable()) {

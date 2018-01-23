@@ -49,9 +49,15 @@ public class JobManager : MonoBehaviour {
 	/// <returns><c>true</c>, if node should be highlighted for the job type, <c>false</c> otherwise</returns>
 	/// <param name="node">The node to check</param>
 	private bool _shouldNodeHighlight(Node node) {
-		bool shouldHighlight = false;
+        bool shouldHighlight = false;
+        Job tempJob = _createJob(node);
 
-		switch(_commandType) {
+        if (tempJob != null) {
+            shouldHighlight = tempJob.isValidLocation();
+        }
+		
+
+		/*switch(_commandType) {
             case JOB_TYPE.Build:
                 shouldHighlight = true;
                 break;
@@ -65,7 +71,7 @@ public class JobManager : MonoBehaviour {
     				shouldHighlight = true;
     			}
     			break;
-		}
+		}*/
 
 		return shouldHighlight;
 	}
@@ -141,8 +147,7 @@ public class JobManager : MonoBehaviour {
 	/// Create a job for the given node
 	/// </summary>
 	/// <param name="node">The node</param>
-	private void _createJob(Node node) {
-        MapManager.Instance.setNodeMarker(node, false, Color.green, "");
+	private Job _createJob(Node node) {
 		Job newJob = null;
 		switch(_commandType) {
             case JOB_TYPE.Place:
@@ -166,18 +171,11 @@ public class JobManager : MonoBehaviour {
                 }
                 break;
     		case JOB_TYPE.Move:
-    			if (node.isWalkable()) {
-    				newJob = new Move(node, 0, 0);
-    			}
+    			newJob = new Move(node, 0, 0);
     			break;
 		}
 
-        if (newJob.isInstant()) {
-            newJob.complete();
-        } else {
-            MapManager.Instance.setNodeMarker(node, true, Color.yellow, newJob.getTitle());
-            _registerJob(newJob);
-        }
+        return newJob;
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///
@@ -293,7 +291,19 @@ public class JobManager : MonoBehaviour {
 
 		// Loop over all the selected nodes and create the appropriate jobs
 		foreach(Node singleNode in _selectedNodes) {
-			_createJob(singleNode);
+            MapManager.Instance.setNodeMarker(singleNode, false, Color.green, "");
+
+			Job newJob = _createJob(singleNode);
+
+            // If a Job was found
+            if (newJob != null) {
+                if (newJob.isInstant()) {
+                    newJob.complete();
+                } else {
+                    MapManager.Instance.setNodeMarker(singleNode, true, Color.yellow, newJob.getTitle());
+                    _registerJob(newJob);
+                }
+            }
 		}
 		_selectedNodes.Clear();
 		isCommandSelected = false;

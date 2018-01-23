@@ -65,6 +65,10 @@ public class Job {
 		return _location.transform.position;
 	}
 
+    public virtual bool isValidLocation() {
+        return true;
+    }
+
     public virtual bool isInstant() {
         return false;
     }

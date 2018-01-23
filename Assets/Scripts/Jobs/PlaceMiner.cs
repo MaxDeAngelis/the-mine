@@ -22,4 +22,8 @@ public class PlaceMiner : Build {
     public override bool isInstant() {
         return true;
     }
+
+    public override bool isValidLocation() {
+        return (_location.isTravelable());
+    }
 }

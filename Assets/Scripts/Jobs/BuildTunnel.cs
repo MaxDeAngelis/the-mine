@@ -14,9 +14,7 @@ public class BuildTunnel : Build {
     /// </summary>
     /// <returns>The list of nodes that the Job can be completed from</returns>
     public override List<Node> getWorkLocations() {
-        List<Node> potentialLocations = new List<Node>();
-        potentialLocations = MapManager.Instance.getSurroundingNodes(_location, false);
-
+        List<Node> potentialLocations = MapManager.Instance.getSurroundingNodes(_location, false);
         List<Node> workLocations = new List<Node>();
 
         Vector3 left = _location.transform.position + Vector3.left;
@@ -43,5 +41,26 @@ public class BuildTunnel : Build {
         _nodeToReplace.destroy();
 
         JobManager.Instance.checkBlockedJobs();
+    }
+
+    public override bool isValidLocation() {
+        bool isValid = false;
+        if (_location.getType() == NODE_TYPE.Stone) {
+            isValid = true;
+            List<Node> locations = MapManager.Instance.getSurroundingNodes(_location);
+
+            Vector3 left = _location.transform.position + Vector3.left;
+            Vector3 right = _location.transform.position + Vector3.right;
+
+            foreach (Node node in locations) {
+                if (node.transform.position != left && node.transform.position != right) {
+                    if (node.getType() == NODE_TYPE.Tunnel) {
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return isValid;
     }
 }

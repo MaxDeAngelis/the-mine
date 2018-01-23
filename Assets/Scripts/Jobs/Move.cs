@@ -26,4 +26,7 @@ public class Move : Job {
 		return workLocations;
 	}
 
+    public override bool isValidLocation() {
+        return (_location.isTravelable());
+    }
 }
