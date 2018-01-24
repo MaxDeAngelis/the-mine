@@ -4,9 +4,24 @@ using System.Collections.Generic;
 
 public class BuildShaft : Build {
     private Node _nodeToReplace;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                                 CONSTRUCTOR                                                  ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public BuildShaft(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.shaftBlock) {
         _title = "Build \nShaft";
         _nodeToReplace = location;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                               PUBLIC FUNCTIONS                                               ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /// <summary>
+    /// Gets the job selection constraints
+    /// </summary>
+    /// <returns>The selection constraints</returns>
+    public override Vector2 getSelectionConstraints() {
+        return new Vector2(1f, -1f);
     }
 
     /// <summary>
@@ -19,9 +34,6 @@ public class BuildShaft : Build {
 
         List<Node> workLocations = new List<Node>();
         workLocations.Add(_location);
-
-        Vector3 top = _location.transform.position + Vector3.up;
-        Vector3 bottom = _location.transform.position + Vector3.down;
 
         foreach (Node node in potentialLocations) {
             if (node.isTravelable()) {
@@ -46,6 +58,10 @@ public class BuildShaft : Build {
         JobManager.Instance.checkBlockedJobs();
     }
 
+    /// <summary>
+    /// Called to see if the current node a valid location for this job
+    /// </summary>
+    /// <returns><c>true</c>, if valid location, <c>false</c> otherwise.</returns>
     public override bool isValidLocation() {
         bool isValid = false;
         if (_location.getType() == NODE_TYPE.Stone) {

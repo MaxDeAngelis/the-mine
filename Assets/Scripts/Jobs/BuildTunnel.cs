@@ -4,9 +4,24 @@ using System.Collections.Generic;
 
 public class BuildTunnel : Build {
     private Node _nodeToReplace;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                                 CONSTRUCTOR                                                  ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public BuildTunnel(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.tunnelBlock) {
         _title = "Build \nTunnel";
         _nodeToReplace = location;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                               PUBLIC FUNCTIONS                                               ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /// <summary>
+    /// Gets the job selection constraints.
+    /// </summary>
+    /// <returns>The selection constraints.</returns>
+    public override Vector2 getSelectionConstraints() {
+        return new Vector2(-1f, 1f);
     }
 
     /// <summary>
@@ -43,6 +58,10 @@ public class BuildTunnel : Build {
         JobManager.Instance.checkBlockedJobs();
     }
 
+    /// <summary>
+    /// Called to see if this is a valid location for this job to be completed
+    /// </summary>
+    /// <returns><c>true</c>, if valid location, <c>false</c> otherwise.</returns>
     public override bool isValidLocation() {
         bool isValid = false;
         if (_location.getType() == NODE_TYPE.Stone) {

@@ -17,9 +17,9 @@ public class Node : MonoBehaviour {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	private SpriteRenderer _marker;
+	private SpriteRenderer _marker; // Marker to clone for other markers
+	private Dictionary<Color, Marker> _markers = new Dictionary<Color, Marker>(); // List of markers by color
 
-	private Dictionary<Color, Marker> _markers = new Dictionary<Color, Marker>();	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +63,10 @@ public class Node : MonoBehaviour {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /// <summary>
+    /// Updates the block accents
+    /// </summary>
     public void updateAccents() {
         if (type != NODE_TYPE.Stone) {
             return;
@@ -90,18 +94,33 @@ public class Node : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Destroy this instance.
+    /// </summary>
     public void destroy() {
         Destroy(gameObject);
     }
 
+    /// <summary>
+    /// Gets the type.
+    /// </summary>
+    /// <returns>The NODE_TYPE of this node</returns>
     public NODE_TYPE getType() {
         return type;
     }
 
+    /// <summary>
+    /// Called to check if the miner can travel on this node
+    /// </summary>
+    /// <returns><c>true</c>, if travelable, <c>false</c> otherwise.</returns>
     public bool isTravelable() {
         return (type == NODE_TYPE.Tunnel || type == NODE_TYPE.Shaft);
     }
 
+    /// <summary>
+    /// Called to check if the miner can walk on this node
+    /// </summary>
+    /// <returns><c>true</c>, if walkable, <c>false</c> otherwise.</returns>
 	public bool isWalkable() {
         return (type == NODE_TYPE.Tunnel);
 	}
@@ -109,7 +128,7 @@ public class Node : MonoBehaviour {
 	/// <summary>
 	/// Called to set the marker for this node. Overloaded to also set color
 	/// </summary>
-	/// <param name="isActive">If set to <c>true</c> is active.</param>
+	/// <param name="isActive">If set to <c>true</c> marker is displayed</param>
 	/// <param name="color">Color.</param>
     public void setNodeMarker(bool state, Color color, string text) {
         Marker currentMarker;
@@ -147,6 +166,9 @@ public class Node : MonoBehaviour {
         currentMarker.setText(text);
 	}
 
+    /// <summary>
+    /// Private marker class 
+    /// </summary>
 	private class Marker {
 		private Color color;
 		private TextMesh textMesh;

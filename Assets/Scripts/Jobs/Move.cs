@@ -14,7 +14,8 @@ public class Move : Job {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     	      PUBLIC FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>
+	
+    /// <summary>
 	/// Overridden version of getWorkLocation to return the correct locations
 	/// </summary>
 	/// <returns>The list of nodes that the Job can be completed from</returns>
@@ -26,6 +27,10 @@ public class Move : Job {
 		return workLocations;
 	}
 
+    /// <summary>
+    /// Ises the valid location.
+    /// </summary>
+    /// <returns><c>true</c>, if valid location was ised, <c>false</c> otherwise.</returns>
     public override bool isValidLocation() {
         return (_location.isTravelable());
     }

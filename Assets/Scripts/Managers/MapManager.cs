@@ -149,7 +149,7 @@ public class MapManager : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Called to get all adjacent nodes to the given node. Always returns diagonals
+	/// Called to get all adjacent nodes to the given node. Always returns corners
 	/// </summary>
 	/// <returns>The surrounding nodes</returns>
 	/// <param name="root">The root node to find all adjacent nodes for</param>
@@ -157,16 +157,23 @@ public class MapManager : MonoBehaviour {
 		return getSurroundingNodes(root, true);
 	}
 
+    /// <summary>
+    /// Gets the nodes that are surround the given root. Does not evaluate if corners are accessable
+    /// </summary>
+    /// <returns>The surrounding nodes</returns>
+    /// <param name="root">Root node to start</param>
+    /// <param name="returnDiagonals">If set to <c>true</c> return all corners</param>
     public List<Node> getSurroundingNodes(Node root, bool returnDiagonals) {
         return getSurroundingNodes(root, returnDiagonals, false);
     }
 
 	/// <summary>
-	/// Called to get all adjacent nodes to the given node
-	/// </summary>
-	/// <returns>The surrounding nodes</returns>
-	/// <param name="root">The root node to find all adjacent nodes for</param>
-	/// <param name="returnDiagonal">Flag for if the diagonal nodes should be returned</param>
+    /// Gets the adjacent nodes around the given
+    /// </summary>
+    /// <returns>The surrounding nodes</returns>
+    /// <param name="root">Root.</param>
+    /// <param name="returnDiagonals">If set to <c>true</c> return corners</param>
+    /// <param name="checkDiagonalAccessability">If set to <c>true</c> check diagonal accessability</param>
     public List<Node> getSurroundingNodes(Node root, bool returnDiagonals, bool checkDiagonalAccessability) {
         Dictionary<string, Node> foundNodes = new Dictionary<string, Node>();
 

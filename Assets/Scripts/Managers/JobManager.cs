@@ -55,23 +55,6 @@ public class JobManager : MonoBehaviour {
         if (tempJob != null) {
             shouldHighlight = tempJob.isValidLocation();
         }
-		
-
-		/*switch(_commandType) {
-            case JOB_TYPE.Build:
-                shouldHighlight = true;
-                break;
-            case JOB_TYPE.Place:
-                if (node.isWalkable()) {
-                    shouldHighlight = true;
-                }
-                break;
-    		case JOB_TYPE.Move:
-                if (node.isTravelable()) {
-    				shouldHighlight = true;
-    			}
-    			break;
-		}*/
 
 		return shouldHighlight;
 	}
@@ -88,6 +71,9 @@ public class JobManager : MonoBehaviour {
 
 		// If multi select job then loop to highlight all nodes
 		if (_isMultiSelect) {
+            Job tempJob = _createJob(_multiSelectStart);
+            Vector2 constraints = tempJob.getSelectionConstraints();
+
 			// Get a reference to the X,Z locations of the nodes on the map
 			float startX = _multiSelectStart.transform.position.x;
 			float endX = _hoveredNode.transform.position.x;
@@ -98,7 +84,14 @@ public class JobManager : MonoBehaviour {
 			while(true) {
 				float tempY = startY;
 				// Loop over Z values
+
+                if (constraints.x != -1f && constraints.x == Mathf.Abs(tempX - startX)) {
+                    break;
+                }
 				while(true) {
+                    if (constraints.y != -1f && constraints.y == Mathf.Abs(tempY - startY)) {
+                        break;
+                    }
 					// Get the node based on calculated location
                     Node node = MapManager.Instance.getNode(new Vector3(tempX, tempY, 0f));
 					if (node != null && _shouldNodeHighlight(node)) {
@@ -247,10 +240,18 @@ public class JobManager : MonoBehaviour {
 		_commandType = type;
 	}
 
+    /// <summary>
+    /// Called to set the build sub type command
+    /// </summary>
+    /// <param name="subType">Sub type.</param>
 	public void setBuildSubType(BUILD_SUB_TYPE subType) {
 		_buildSubType = subType;
 	}
 
+    /// <summary>
+    /// Called to set the place sub type
+    /// </summary>
+    /// <param name="subType">Sub type.</param>
     public void setPlaceSubType(PLACE_SUB_TYPE subType) {
         _placeSubType = subType;
     }

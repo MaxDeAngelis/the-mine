@@ -24,7 +24,7 @@ public class Job {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC GETTERS												     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**/
+	
 	/// <summary>
 	/// Called to get the type of Job
 	/// </summary>
@@ -57,18 +57,42 @@ public class Job {
 		return _progress;
 	}
 
+    /// <summary>
+    /// Gets the location node.
+    /// </summary>
+    /// <returns>The location node.</returns>
     public Node getLocationNode() {
         return _location;
     }
 
+    /// <summary>
+    /// Gets the location.
+    /// </summary>
+    /// <returns>The location.</returns>
 	public Vector3 getLocation() {
 		return _location.transform.position;
 	}
 
+    /// <summary>
+    /// Gets the job selection constraints.
+    /// </summary>
+    /// <returns>The selection constraints.</returns>
+    public virtual Vector2 getSelectionConstraints() {
+        return new Vector2(-1f, -1f);
+    }
+
+    /// <summary>
+    /// Ises the valid location.
+    /// </summary>
+    /// <returns><c>true</c>, if valid location was ised, <c>false</c> otherwise.</returns>
     public virtual bool isValidLocation() {
         return true;
     }
 
+    /// <summary>
+    /// Called to see if this job is an instant build
+    /// </summary>
+    /// <returns><c>true</c>, if job should be completed instantly, <c>false</c> otherwise.</returns>
     public virtual bool isInstant() {
         return false;
     }
