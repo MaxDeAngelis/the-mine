@@ -9,6 +9,7 @@ public class BuildTunnel : Build {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public BuildTunnel(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.tunnelBlock) {
         _title = "Build \nTunnel";
+        _buildSubType = BUILD_SUB_TYPE.Tunnel;
         _nodeToReplace = location;
     }
 
@@ -72,8 +73,11 @@ public class BuildTunnel : Build {
             Vector3 right = _location.transform.position + Vector3.right;
 
             foreach (Node node in locations) {
+                // Check all surrounding nodes except left and right
                 if (node.transform.position != left && node.transform.position != right) {
-                    if (node.getType() == NODE_TYPE.Tunnel) {
+                    // Check all nodes around the location and if any are a tunnel then not allowed
+                    Build job = (Build)JobManager.Instance.getJobByLocation(node.transform.position);
+                    if (node.getType() == NODE_TYPE.Tunnel || (job != null && job.getType() == JOB_TYPE.Build && job.getSubType() == BUILD_SUB_TYPE.Tunnel)) {
                         isValid = false;
                         break;
                     }

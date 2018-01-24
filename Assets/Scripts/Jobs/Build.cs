@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Build : Job {
+    protected BUILD_SUB_TYPE _buildSubType;
     protected GameObject _finishedObject;
     private GameObject _objectToBuild;
 
@@ -26,6 +27,14 @@ public class Build : Job {
         workLocations = MapManager.Instance.getSurroundingNodes(_location, false);
 
         return workLocations;
+    }
+
+    /// <summary>
+    /// Gets the build subtype
+    /// </summary>
+    /// <returns>The sub type.</returns>
+    public BUILD_SUB_TYPE getSubType() {
+        return _buildSubType;
     }
 
     /// <summary>

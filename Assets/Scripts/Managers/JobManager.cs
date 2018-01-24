@@ -13,8 +13,9 @@ public class JobManager : MonoBehaviour {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	private List<Job> _availableJobs = new List<Job>();	
-	private List<Job> _blockedJobs = new List<Job>();
+    private Dictionary<Vector3, Job> _availableJobs = new Dictionary<Vector3, Job>();	
+    private Dictionary<Vector3, Job> _blockedJobs = new Dictionary<Vector3, Job>();
+    private Dictionary<Vector3, Job> _inProgressJobs = new Dictionary<Vector3, Job>();
 
 	private JOB_TYPE _commandType;
 	private BUILD_SUB_TYPE _buildSubType;
@@ -50,10 +51,14 @@ public class JobManager : MonoBehaviour {
 	/// <param name="node">The node to check</param>
 	private bool _shouldNodeHighlight(Node node) {
         bool shouldHighlight = false;
-        Job tempJob = _createJob(node);
 
-        if (tempJob != null) {
-            shouldHighlight = tempJob.isValidLocation();
+        // If there is no job defined
+        if (isJobDefined(node.transform.position) == false) {
+            // Create temp job and check if valid node
+            Job tempJob = _createJob(node);
+            if (tempJob != null) {
+                shouldHighlight = tempJob.isValidLocation();
+            }
         }
 
 		return shouldHighlight;
@@ -130,7 +135,7 @@ public class JobManager : MonoBehaviour {
 	/// <param name="newJob">New job.</param>
 	private void _registerJob(Job newJob) {
 		if (newJob != null) {
-			_availableJobs.Add(newJob);
+            _availableJobs.Add(newJob.getLocation(), newJob);
 		}
 		/* DEBUG */ //GameManager.Instance.updateAvailableJobs(_availableJobs);
 		/* DEBUG */ //GameManager.Instance.clearAllNodeColor();
@@ -178,8 +183,23 @@ public class JobManager : MonoBehaviour {
 	/// </summary>
 	/// <param name="job">The Job</param>
 	public void blockJob(Job job) {
-		_blockedJobs.Add(job);
+        _blockedJobs.Add(job.getLocation(), job);
+        if (_inProgressJobs.ContainsKey(job.getLocation())) {
+            _inProgressJobs.Remove(job.getLocation());
+        }
 	}
+
+    /// <summary>
+    /// Remove the finished job from the in progress list
+    /// </summary>
+    /// <param name="job">Job</param>
+    public void finishJob(Job job) {
+        _inProgressJobs.Remove(job.getLocation());
+    }
+
+    public bool isJobDefined(Vector3 loc) {
+        return (_blockedJobs.ContainsKey(loc) || _availableJobs.ContainsKey(loc) || _inProgressJobs.ContainsKey(loc));
+    }
 
     /// <summary>
     /// Called periodically to check if any of the blocked Jobs are now available
@@ -188,7 +208,7 @@ public class JobManager : MonoBehaviour {
         List<Job> unblockedJobs = new List<Job>();
 
         // Loop over blocked Jobs to find the ones to migrate
-        foreach(Job job in _blockedJobs) {
+        foreach(Job job in _blockedJobs.Values) {
             List<Node> jobWorkLocations = job.getWorkLocations();
 
             if (jobWorkLocations.Count > 0) {
@@ -198,8 +218,8 @@ public class JobManager : MonoBehaviour {
 
         // Migrate to available
         foreach(Job job in unblockedJobs) {
-            _blockedJobs.Remove(job);
-            _availableJobs.Add(job);
+            _blockedJobs.Remove(job.getLocation());
+            _availableJobs.Add(job.getLocation(), job);
         }
 
         unblockedJobs.Clear();
@@ -214,7 +234,7 @@ public class JobManager : MonoBehaviour {
 		Job returnJob = null;
         int jobDistance = -1;
 		if (_availableJobs.Count > 0) {
-            foreach (Job job in _availableJobs) {
+            foreach (Job job in _availableJobs.Values) {
                 List<Node> workLocations = job.getWorkLocations();
                 foreach (Node node in workLocations) {
                     _pathFinder.findPath(currentNode, node);
@@ -224,13 +244,33 @@ public class JobManager : MonoBehaviour {
                     returnJob = job;
                 }
             }
-			_availableJobs.Remove(returnJob);
 
+            // If a job was found then add to in progress list
+            if (returnJob != null) {
+                _availableJobs.Remove(returnJob.getLocation());
+                _inProgressJobs.Add(returnJob.getLocation(), returnJob);
+            }
 			/* DEBUG */ //GameManager.Instance.updateAvailableJobs(_availableJobs);
 		}
 
 		return returnJob;
 	}
+
+    public Job getJobByLocation(Vector3 location) {
+        if (_availableJobs.ContainsKey(location)) {
+            return _availableJobs[location];
+        }
+
+        if (_blockedJobs.ContainsKey(location)) {
+            return _blockedJobs[location];
+        }
+
+        if (_inProgressJobs.ContainsKey(location)) {
+            return _inProgressJobs[location];
+        }
+
+        return null;
+    }
 
 	/// <summary>
 	/// Called to set the command type that is about to be issued

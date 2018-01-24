@@ -9,6 +9,7 @@ public class BuildShaft : Build {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public BuildShaft(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.shaftBlock) {
         _title = "Build \nShaft";
+        _buildSubType = BUILD_SUB_TYPE.Shaft;
         _nodeToReplace = location;
     }
 
@@ -73,7 +74,8 @@ public class BuildShaft : Build {
 
             foreach (Node node in locations) {
                 if (node.transform.position != top && node.transform.position != bottom) {
-                    if (node.getType() == NODE_TYPE.Shaft) {
+                    Build job = (Build)JobManager.Instance.getJobByLocation(node.transform.position);
+                    if (node.getType() == NODE_TYPE.Shaft || (job != null && job.getType() == JOB_TYPE.Build && job.getSubType() == BUILD_SUB_TYPE.Shaft)) {
                         isValid = false;
                         break;
                     }

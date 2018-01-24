@@ -111,5 +111,6 @@ public class Job {
 	public virtual void complete() { 
 		// Clear marker from the location node
         MapManager.Instance.setNodeMarker(_location, false, Color.yellow, "");
+        JobManager.Instance.finishJob(this);
 	}
 }
