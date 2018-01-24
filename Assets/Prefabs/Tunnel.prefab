@@ -39,7 +39,7 @@ GameObject:
   - component: {fileID: 4290357143357250}
   - component: {fileID: 23814006945280944}
   - component: {fileID: 102319780926403068}
-  m_Layer: 31
+  m_Layer: 30
   m_Name: Text
   m_TagString: Marker-Text
   m_Icon: {fileID: 0}
@@ -55,7 +55,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4346316224761796}
   - component: {fileID: 212760171087062498}
-  m_Layer: 31
+  m_Layer: 30
   m_Name: Marker
   m_TagString: Marker
   m_Icon: {fileID: 0}
@@ -86,7 +86,7 @@ Transform:
   m_GameObject: {fileID: 1943210313032310}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4516445006556734}
   m_RootOrder: 1
