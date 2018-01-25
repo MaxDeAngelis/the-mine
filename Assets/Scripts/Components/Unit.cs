@@ -15,6 +15,7 @@ public class Unit : MonoBehaviour {
 	private Job _currentJob;
 	private PathFinder _pathFinder = new PathFinder();
 	private Node _nextPathNode;
+    private IEnumerator _doJobCoroutine;
 	// TODO: will want some concept of normal speed for walk penilties 
 	// private float _normalMovementSpeed;
 
@@ -34,11 +35,12 @@ public class Unit : MonoBehaviour {
 	private void FixedUpdate () {
 		if (isWorking()) {
 			return;
-		} else if (isIdle()) {
+        } else if (isIdle()) {
             Node currentNode = MapManager.Instance.getNode(transform.position);
             _currentJob = JobManager.Instance.getJob(currentNode);
 
 			if (_currentJob != null) {
+                _currentJob.addWorker(this);
 				_state = UNIT_STATE.Busy;
 			}
 		} else if (isMoving()) {
@@ -53,7 +55,8 @@ public class Unit : MonoBehaviour {
 					GetComponent<Rigidbody2D>().velocity = new Vector3(0, 0, 0);
 					_pathFinder.nullify();
                     _state = UNIT_STATE.Working;
-                    StartCoroutine(_doJob());
+                    _doJobCoroutine = _doJob();
+                    StartCoroutine(_doJobCoroutine);
 				} else {
 					_nextPathNode = _pathFinder.getNextNode();
 				}
@@ -74,6 +77,7 @@ public class Unit : MonoBehaviour {
 			if (_pathFinder.isEmpty()) {
 				_state = UNIT_STATE.Idle;
 
+                _currentJob.removeWorker(this);
 				JobManager.Instance.blockJob(_currentJob);
 			} else {
 				/* DEBUG */ _pathFinder.highlight();
@@ -106,9 +110,12 @@ public class Unit : MonoBehaviour {
         // Yield for the duration of the boost
         yield return new WaitForSeconds(_currentJob.getDuration());
 
-        _currentJob.complete();
-        _currentJob = null;
+        if (_currentJob != null) {
+            _currentJob.complete();
+            _currentJob = null;
+        }
         _state = UNIT_STATE.Idle;
+
     }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,4 +143,10 @@ public class Unit : MonoBehaviour {
 	public bool isWorking() {
 		return (_state == UNIT_STATE.Working);
 	}
+
+    public void cancelJob() {
+        _currentJob = null;
+        _state = UNIT_STATE.Idle;
+        StopCoroutine(_doJobCoroutine);
+    }
 }

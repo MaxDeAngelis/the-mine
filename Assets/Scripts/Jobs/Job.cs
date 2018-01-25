@@ -11,6 +11,7 @@ public class Job {
 	protected Node _location;
 	protected float _duration;
 	protected float _progress;
+    private List<Unit> _workers = new List<Unit>();
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     			CONSTRUCTOR												     ///
@@ -32,6 +33,32 @@ public class Job {
 	public JOB_TYPE getType() {
 		return _type;
 	}
+
+    /// <summary>
+    /// Adds a worker to this job
+    /// </summary>
+    /// <param name="worker">Worker.</param>
+    public void addWorker(Unit worker) {
+        _workers.Add(worker);
+    }
+
+    /// <summary>
+    /// Removes a worker from this job
+    /// </summary>
+    /// <param name="worker">Worker.</param>
+    public void removeWorker(Unit worker) {
+        _workers.Remove(worker);
+    }
+
+    /// <summary>
+    /// Cancels this job by telling workers to stop working
+    /// </summary>
+    public void cancel() {
+        foreach(Unit worker in _workers) {
+            worker.cancelJob();
+        }
+        JobManager.Instance.cancelJob(this);
+    }
 
 	/// <summary>
 	/// Called to get the Title of the Job

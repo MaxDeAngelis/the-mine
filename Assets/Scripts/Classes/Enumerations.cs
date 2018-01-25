@@ -1,6 +1,6 @@
 ﻿using System;
 
-public enum JOB_TYPE { Move, Place, Build };
+public enum JOB_TYPE { None, Cancel, Move, Place, Build };
 
 public enum BUILD_SUB_TYPE { None, Tunnel, Shaft };
 

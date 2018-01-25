@@ -53,13 +53,14 @@ public class JobManager : MonoBehaviour {
         bool shouldHighlight = false;
 
         // If there is no job defined
-        if (isJobDefined(node.transform.position) == false) {
+        // FIXME need to find a better way of doing this
+        //if (isJobDefined(node.transform.position) == false) {
             // Create temp job and check if valid node
             Job tempJob = _createJob(node);
             if (tempJob != null) {
                 shouldHighlight = tempJob.isValidLocation();
             }
-        }
+        //}
 
 		return shouldHighlight;
 	}
@@ -169,8 +170,11 @@ public class JobManager : MonoBehaviour {
                 }
                 break;
     		case JOB_TYPE.Move:
-    			newJob = new Move(node, 0, 0);
+    			newJob = new Move(node);
     			break;
+            case JOB_TYPE.Cancel:
+                newJob = new Cancel(node);
+                break;
 		}
 
         return newJob;
@@ -194,7 +198,23 @@ public class JobManager : MonoBehaviour {
     /// </summary>
     /// <param name="job">Job</param>
     public void finishJob(Job job) {
-        _inProgressJobs.Remove(job.getLocation());
+        if (job.getType() != JOB_TYPE.Cancel) {
+            _inProgressJobs.Remove(job.getLocation());
+        }
+    }
+
+    public void cancelJob(Job job) {
+        if (_availableJobs.ContainsKey(job.getLocation())) {
+            _availableJobs.Remove(job.getLocation());
+        }
+
+        if (_blockedJobs.ContainsKey(job.getLocation())) {
+            _blockedJobs.Remove(job.getLocation());
+        }
+
+        if (_inProgressJobs.ContainsKey(job.getLocation())) {
+            _inProgressJobs.Remove(job.getLocation());
+        }
     }
 
     public bool isJobDefined(Vector3 loc) {
@@ -362,12 +382,12 @@ public class JobManager : MonoBehaviour {
 		if (!isCommandSelected) { return; }
 
 		_isMouseDown = true;
-
 		switch(_commandType) {
             case JOB_TYPE.Place:
     		case JOB_TYPE.Move:
     			break;
             case JOB_TYPE.Build:
+            case JOB_TYPE.Cancel:
     		default:
     			_isMultiSelect = true;	
     			_multiSelectStart = node;
