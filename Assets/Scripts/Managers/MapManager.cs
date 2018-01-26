@@ -27,6 +27,7 @@ public class MapManager : MonoBehaviour {
 
 	/* Dictionaries of objects */
 	private Dictionary<Vector3, Node> _mapNodes = new Dictionary<Vector3, Node>();	
+    private List<Item> _items = new List<Item>();
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE FUNCTIONS											     ///
@@ -264,4 +265,28 @@ public class MapManager : MonoBehaviour {
             node.setNodeMarker(false, color, "");
 		}
 	}
+
+    /// <summary>
+    /// Adds the item.
+    /// </summary>
+    /// <param name="item">Item.</param>
+    public void addItem(Item item) {
+        _items.Add(item);
+    }
+
+    /// <summary>
+    /// Gets the item based off the location given
+    /// </summary>
+    /// <returns>The item.</returns>
+    /// <param name="location">Location to find item at</param>
+    public Item getItem(Vector3 location) {
+        if (_items.Count > 0) {
+            foreach(Item item in _items) {
+                if (item.getLocation() == location) {
+                    return item;
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -30,6 +30,11 @@ public class PlaceLamp : Build {
     /// </summary>
     /// <returns><c>true</c>, if valid location was ised, <c>false</c> otherwise.</returns>
     public override bool isValidLocation() {
-        return (_location.getType() == NODE_TYPE.Tunnel);
+        Job job = JobManager.Instance.getJobByLocation(_location.transform.position);
+        if (_location.getType() == NODE_TYPE.Tunnel && MapManager.Instance.getItem(_location.transform.position) == null && job == null) {
+            return true;
+        }
+
+        return false;
     }
 }

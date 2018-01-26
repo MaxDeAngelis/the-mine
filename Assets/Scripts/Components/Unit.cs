@@ -49,7 +49,7 @@ public class Unit : MonoBehaviour {
 			dir *= movementSpeed * Time.deltaTime;									
 			GetComponent<Rigidbody2D>().velocity = dir;	
 
-			if (Vector3.Distance (transform.position, target) < 0.05f) {
+			if (Vector3.Distance (transform.position, target) < 0.1f) {
 				transform.position = target;
 				if (_pathFinder.isEmpty()) {
 					GetComponent<Rigidbody2D>().velocity = new Vector3(0, 0, 0);
