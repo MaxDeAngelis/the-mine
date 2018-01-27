@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Marker
   - Marker-Text
+  - New tag
   layers:
   - Default
   - TransparentFX

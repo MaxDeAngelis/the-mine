@@ -15,6 +15,14 @@ public class PlaceLamp : Build {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /// <summary>
+    /// Gets the action text.
+    /// </summary>
+    /// <returns>The action text.</returns>
+    public override string getActionText() {
+        return "Placing lamp";
+    }
+
+    /// <summary>
     /// Overridden version of getWorkLocation to return the correct locations
     /// </summary>
     /// <returns>The list of nodes that the Job can be completed from</returns>

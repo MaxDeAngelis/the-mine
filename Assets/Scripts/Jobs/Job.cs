@@ -107,6 +107,17 @@ public class Job {
 		return _location.transform.position;
 	}
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                            VIRTUAL FUCTIONS                                                 ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>
+    /// Gets the action text.
+    /// </summary>
+    /// <returns>The action text.</returns>
+    public virtual string getActionText() {
+        return "";
+    }
+
     /// <summary>
     /// Gets the job selection constraints.
     /// </summary>

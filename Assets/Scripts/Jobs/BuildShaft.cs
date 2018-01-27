@@ -16,6 +16,13 @@ public class BuildShaft : Build {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                               PUBLIC FUNCTIONS                                               ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>
+    /// Gets the action text.
+    /// </summary>
+    /// <returns>The action text.</returns>
+    public override string getActionText() {
+        return "Building shaft";
+    }
 
     /// <summary>
     /// Gets the job selection constraints

@@ -23,6 +23,9 @@ public class Unit : MonoBehaviour {
     private GameObject _progressMarker;
     private IEnumerator _progressCoroutine;
 
+    // Talking
+    private TextMesh _talk;
+    private IEnumerator _speachCoroutine;
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +33,8 @@ public class Unit : MonoBehaviour {
 	/// Called when the Game Object is started
 	/// </summary>
 	private void Start () {
-
+        _talk = gameObject.FindChildWithTag("Marker-Text").GetComponent<TextMesh>();
+        _talk.gameObject.GetComponent<Renderer>().sortingLayerName = "Marker-Text";
 	}
 
 	/// <summary>
@@ -116,6 +120,7 @@ public class Unit : MonoBehaviour {
     /// Called to actually do the work of the current Job
     /// </summary>
     private IEnumerator _doJob() {
+        speak(_currentJob.getActionText(), _currentJob.getDuration() / 2f);
         Vector3 target = _currentJob.getLocation();
         target.y = transform.position.y;
 
@@ -161,6 +166,13 @@ public class Unit : MonoBehaviour {
         }
     }
 
+    private IEnumerator _say(string text, float duration) {
+        _talk.text = text;
+        _talk.gameObject.SetActive(true);
+        yield return new WaitForSeconds(duration);
+        _talk.gameObject.SetActive(false);
+    }
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -194,5 +206,15 @@ public class Unit : MonoBehaviour {
 
         StopCoroutine(_progressCoroutine);
         Destroy(_progressMarker);
+    }
+
+    public void speak(string text, float duration) {
+        if (_speachCoroutine != null) {
+            StopCoroutine(_speachCoroutine);
+        }
+
+        _speachCoroutine = _say(text, duration);
+
+        StartCoroutine(_speachCoroutine);
     }
 }
