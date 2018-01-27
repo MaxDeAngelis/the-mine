@@ -115,7 +115,6 @@ public class Unit : MonoBehaviour {
     /// <summary>
     /// Called to actually do the work of the current Job
     /// </summary>
-    /// <returns>The job.</returns>
     private IEnumerator _doJob() {
         Vector3 target = _currentJob.getLocation();
         target.y = transform.position.y;
@@ -134,9 +133,12 @@ public class Unit : MonoBehaviour {
 
     }
 
+    /// <summary>
+    /// Called to show the progress of a job
+    /// </summary>
     private IEnumerator _showProgress() {
-        float currentScale = 0.9f;
-        float currentY;
+        float currentScale = 0f;
+        float currentY = -0.45f;
         float deltaTime = _currentJob.getDuration() / 100;
         float dx = 0.01f;
         Color color = Color.gray;
@@ -145,15 +147,14 @@ public class Unit : MonoBehaviour {
         // Create a new marker
         _progressMarker = MonoBehaviour.Instantiate(ItemLibrary.Instance.marker) as GameObject;
         _progressMarker.transform.SetParent(_currentJob.getLocationNode().transform);
-        _progressMarker.transform.localPosition = Vector3.zero;
-        _progressMarker.transform.localScale = Vector3.one;
+        _progressMarker.transform.localPosition = new Vector3(0f, currentY, 0f);
+        _progressMarker.transform.localScale = new Vector3(0.9f, 0f, 1f);
         _progressMarker.GetComponent<SpriteRenderer>().material.color = color;
 
-        // Loop and adjust 
-        currentY = _progressMarker.transform.localPosition.y;
-        while (true) {
-            currentScale -= dx;
-            currentY -= dx / 2;
+        // Loop and adjust until full scale
+        while (currentScale < 0.9f) {
+            currentScale += dx;
+            currentY += dx / 2;
             _progressMarker.transform.localScale = new Vector3(0.9f, currentScale, 1f);
             _progressMarker.transform.localPosition = new Vector3(0f, currentY, 1f);
             yield return new WaitForSeconds(deltaTime);
