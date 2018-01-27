@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MapManager : MonoBehaviour {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,6 +21,13 @@ public class MapManager : MonoBehaviour {
 	public Transform mapContainer;
 
 
+    /* Resources */
+    public Text wood;
+    public Text food;
+    public Text stone;
+    public Text iron;
+    public Text gold;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,6 +35,7 @@ public class MapManager : MonoBehaviour {
 
 	/* Dictionaries of objects */
 	private Dictionary<Vector3, Node> _mapNodes = new Dictionary<Vector3, Node>();	
+    private Dictionary<RESOURCE_TYPE, int> _resources = new Dictionary<RESOURCE_TYPE, int>();
     private List<Item> _items = new List<Item>();
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +56,14 @@ public class MapManager : MonoBehaviour {
 	/// Called on start of this game object
 	/// </summary>
 	private void Start() {
+        _resources[RESOURCE_TYPE.Wood] = 0;
+        _resources[RESOURCE_TYPE.Food] = 0;
+        _resources[RESOURCE_TYPE.Stone] = 0;
+        _resources[RESOURCE_TYPE.Iron] = 0;
+        _resources[RESOURCE_TYPE.Gold] = 0;
+            
 		_generate();
+        _updateResources();
 	}
 
 	/// <summary>
@@ -112,6 +128,20 @@ public class MapManager : MonoBehaviour {
 		Node mapNode = newNode.GetComponent<Node>();
 
         addMapNode(mapNode);
+
+        float iron = _perlinNoise(location.x, location.y, UnityEngine.Random.Range(7f, 10f), UnityEngine.Random.Range(7f, 10f));
+        if (iron > 5f) {
+            mapNode.resource = RESOURCE_TYPE.Iron;
+            mapNode.resourceAmount = 2;
+            //setNodeMarker(mapNode, true, Color.cyan, iron.ToString());
+        }
+
+        float gold = _perlinNoise(location.x, location.y, UnityEngine.Random.Range(6f, 8f), UnityEngine.Random.Range(6f, 8f));
+        if (gold > 5f) {
+            mapNode.resource = RESOURCE_TYPE.Gold;
+            mapNode.resourceAmount = 1;
+            //setNodeMarker(mapNode, true, Color.cyan, "");
+        }
 	}
 
     /// <summary>
@@ -128,6 +158,14 @@ public class MapManager : MonoBehaviour {
         }
 
         return returnValue;
+    }
+
+    private void _updateResources() {
+        wood.text = _resources[RESOURCE_TYPE.Wood].ToString();
+        food.text = _resources[RESOURCE_TYPE.Food].ToString();
+        stone.text = _resources[RESOURCE_TYPE.Stone].ToString();
+        iron.text = _resources[RESOURCE_TYPE.Iron].ToString();
+        gold.text = _resources[RESOURCE_TYPE.Gold].ToString();
     }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -288,5 +326,12 @@ public class MapManager : MonoBehaviour {
             }
         }
         return null;
+    }
+
+    public void addResource(RESOURCE_TYPE type, int amount) {
+        if (type != RESOURCE_TYPE.None) {
+            _resources[type] += amount;
+            _updateResources();
+        }
     }
 }

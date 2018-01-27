@@ -54,7 +54,7 @@ public class BuildShaft : Build {
         MapManager.Instance.removeMapNode(_nodeToReplace);
         MapManager.Instance.addMapNode(_finishedObject.GetComponent<Node>());
 
-        _nodeToReplace.destroy();
+        _nodeToReplace.mine();
 
         JobManager.Instance.checkBlockedJobs();
     }

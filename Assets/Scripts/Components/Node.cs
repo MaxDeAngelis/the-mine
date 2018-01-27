@@ -13,6 +13,11 @@ public class Node : MonoBehaviour {
     public GameObject accentRight;
     public GameObject accentBottom;
     public GameObject accentLeft;
+    public GameObject accentIron;
+    public GameObject accentGold;
+
+    public RESOURCE_TYPE resource = RESOURCE_TYPE.None;
+    public int resourceAmount = 0;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE VARIABLES											     ///
@@ -23,14 +28,6 @@ public class Node : MonoBehaviour {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>
-	/// Called when the game object starts
-	/// </summary>
-	private void Start () {
-        _marker = gameObject.FindChildWithTag("Marker").transform.GetComponent<SpriteRenderer>();
-        _marker.material.color = Color.white;
-        _marker.gameObject.FindChildWithTag("Marker-Text").GetComponent<Renderer>().sortingLayerName = "Marker-Text";
-	}
 
 	/// <summary>
 	/// Called on mouse enter to show where cursor is
@@ -92,6 +89,22 @@ public class Node : MonoBehaviour {
                 }
             }
         }
+
+        if (resource == RESOURCE_TYPE.Iron) {
+            accentIron.SetActive(true);
+        }
+
+        if (resource == RESOURCE_TYPE.Gold) {
+            accentGold.SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// Mine this instance.
+    /// </summary>
+    public void mine() {
+        MapManager.Instance.addResource(resource, resourceAmount);
+        destroy();
     }
 
     /// <summary>
@@ -131,6 +144,12 @@ public class Node : MonoBehaviour {
 	/// <param name="isActive">If set to <c>true</c> marker is displayed</param>
 	/// <param name="color">Color.</param>
     public void setNodeMarker(bool state, Color color, string text) {
+        if (_marker == null) {
+            _marker = gameObject.FindChildWithTag("Marker").transform.GetComponent<SpriteRenderer>();
+            _marker.material.color = Color.white;
+            _marker.gameObject.FindChildWithTag("Marker-Text").GetComponent<Renderer>().sortingLayerName = "Marker-Text";
+        }
+
         Marker currentMarker;
         if (_markers.ContainsKey(color)) {
             currentMarker = _markers[color];
