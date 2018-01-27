@@ -19,6 +19,10 @@ public class Unit : MonoBehaviour {
 	// TODO: will want some concept of normal speed for walk penilties 
 	// private float _normalMovementSpeed;
 
+    // Progress Marker
+    private GameObject _progressMarker;
+    private IEnumerator _progressCoroutine;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,8 +59,17 @@ public class Unit : MonoBehaviour {
 					GetComponent<Rigidbody2D>().velocity = new Vector3(0, 0, 0);
 					_pathFinder.nullify();
                     _state = UNIT_STATE.Working;
+
+                    // Clear
+                    MapManager.Instance.setNodeMarker(_currentJob.getLocationNode(), false, Color.yellow, "");
+
+                    // Job
                     _doJobCoroutine = _doJob();
                     StartCoroutine(_doJobCoroutine);
+
+                    // Progress
+                    _progressCoroutine = _showProgress();
+                    StartCoroutine(_progressCoroutine);
 				} else {
 					_nextPathNode = _pathFinder.getNextNode();
 				}
@@ -111,11 +124,40 @@ public class Unit : MonoBehaviour {
         yield return new WaitForSeconds(_currentJob.getDuration());
 
         if (_currentJob != null) {
+            StopCoroutine(_progressCoroutine);
+            Destroy(_progressMarker);
+
             _currentJob.complete();
             _currentJob = null;
         }
         _state = UNIT_STATE.Idle;
 
+    }
+
+    private IEnumerator _showProgress() {
+        float currentScale = 0.9f;
+        float currentY;
+        float deltaTime = _currentJob.getDuration() / 100;
+        float dx = 0.01f;
+        Color color = Color.gray;
+        color.a = 0.5f;
+
+        // Create a new marker
+        _progressMarker = MonoBehaviour.Instantiate(ItemLibrary.Instance.marker) as GameObject;
+        _progressMarker.transform.SetParent(_currentJob.getLocationNode().transform);
+        _progressMarker.transform.localPosition = Vector3.zero;
+        _progressMarker.transform.localScale = Vector3.one;
+        _progressMarker.GetComponent<SpriteRenderer>().material.color = color;
+
+        // Loop and adjust 
+        currentY = _progressMarker.transform.localPosition.y;
+        while (true) {
+            currentScale -= dx;
+            currentY -= dx / 2;
+            _progressMarker.transform.localScale = new Vector3(0.9f, currentScale, 1f);
+            _progressMarker.transform.localPosition = new Vector3(0f, currentY, 1f);
+            yield return new WaitForSeconds(deltaTime);
+        }
     }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,5 +190,8 @@ public class Unit : MonoBehaviour {
         _currentJob = null;
         _state = UNIT_STATE.Idle;
         StopCoroutine(_doJobCoroutine);
+
+        StopCoroutine(_progressCoroutine);
+        Destroy(_progressMarker);
     }
 }

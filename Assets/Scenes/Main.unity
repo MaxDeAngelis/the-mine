@@ -282,7 +282,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shader: {fileID: 4800000, guid: 09755a4891f8d4526a7e0690a23dec7b, type: 3}
-  spriteLightRT: {fileID: 416009897}
+  spriteLightRT: {fileID: 1441100084}
   intensity: 1.25
 --- !u!1 &312452094
 GameObject:
@@ -492,37 +492,6 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 326860070}
---- !u!84 &416009897
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: SpriteLightKit RT
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_Width: 833
-  m_Height: 449
-  m_AntiAliasing: 1
-  m_DepthFormat: 1
-  m_ColorFormat: 0
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 0
-    m_Aniso: 0
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!1 &448452248
 GameObject:
   m_ObjectHideFlags: 0
@@ -579,7 +548,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 3221225472
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 416009897}
+  m_TargetTexture: {fileID: 1441100084}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -1914,6 +1883,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed2e27aa229dd4a0b8b9dfd5709d99a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!84 &1441100084
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: SpriteLightKit RT
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_Width: 833
+  m_Height: 449
+  m_AntiAliasing: 1
+  m_DepthFormat: 1
+  m_ColorFormat: 0
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 0
+    m_Aniso: 0
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1 &1459163782
 GameObject:
   m_ObjectHideFlags: 0
@@ -2494,6 +2494,7 @@ MonoBehaviour:
   stoneBlock: {fileID: 1594000736820232, guid: dfdac17f76f624c38980ca72b81ca99c, type: 2}
   shaftBlock: {fileID: 1531922441912684, guid: cd0816a6c0c254fea859d601347abdfa, type: 2}
   lamp: {fileID: 1739024313466390, guid: f8de6c92ea36f4fe883d14e82a91019a, type: 2}
+  marker: {fileID: 1453252109727612, guid: b2e9e02cece9f4337a5e6aaec6657ba0, type: 2}
 --- !u!4 &1695431626
 Transform:
   m_ObjectHideFlags: 0

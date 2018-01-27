@@ -14,12 +14,15 @@ public class PathFinder {
 
     private List<Node> _highlightedNodes = new List<Node>();
 
+    private bool DEBUG = false;
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	PathNode _findNext(PathNode currentNode, PathNode finish) {
-        /* DEBUG */ MapManager.Instance.setNodeMarker(currentNode.getNode(), true, Color.red, "");
-        /* DEBUG */ _highlightedNodes.Add(currentNode.getNode());
+        if (DEBUG) {
+            MapManager.Instance.setNodeMarker(currentNode.getNode(), true, Color.red, "");
+            _highlightedNodes.Add(currentNode.getNode());
+        }
 
 		PathNode returnNode = null;
 		Vector3 currentPosition = currentNode.getPosition();
@@ -61,7 +64,7 @@ public class PathFinder {
 	}
 
     private void _clearPathHighlight() {
-        if (_highlightedNodes.Count > 0) {
+        if (_highlightedNodes.Count > 0 && DEBUG) {
             foreach (Node individualNode in _highlightedNodes) {
                 MapManager.Instance.setNodeMarker(individualNode, false, Color.red, "");
                 MapManager.Instance.setNodeMarker(individualNode, false, Color.blue, "");
@@ -169,7 +172,7 @@ public class PathFinder {
 	/// Called to nullify the current object
 	/// </summary>
 	public void nullify() {
-        /* DEBUG */ _clearPathHighlight();
+        _clearPathHighlight();
 		_closedNodes.Clear();
 		_openNodes.Clear();
 		_currentPath.Clear();
@@ -177,14 +180,16 @@ public class PathFinder {
 	}
 
 	public void highlight() {
-		int count = 0;
-		foreach(PathNode node in _currentPath) {
-            /* DEBUG */ _highlightedNodes.Add(node.getNode());
-            /* DEBUG */ MapManager.Instance.setNodeMarker(node.getNode(), false, Color.red, "");
-            string pathData = count + "\nF: " + node.getF() + "\nG: " + node.getG() + "\nH: " + node.getH();
-            /* DEBUG */ MapManager.Instance.setNodeMarker(node.getNode(), true, Color.blue, pathData);
-			count++;
-		}
+        if (DEBUG) {
+            int count = 0;
+            foreach (PathNode node in _currentPath) {
+                _highlightedNodes.Add(node.getNode());
+                MapManager.Instance.setNodeMarker(node.getNode(), false, Color.red, "");
+                string pathData = count + "\nF: " + node.getF() + "\nG: " + node.getG() + "\nH: " + node.getH();
+                MapManager.Instance.setNodeMarker(node.getNode(), true, Color.blue, pathData);
+                count++;
+            }
+        }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
