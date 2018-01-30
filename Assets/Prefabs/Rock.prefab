@@ -379,10 +379,10 @@ MonoBehaviour:
   accentRight: {fileID: 1245425216193896}
   accentBottom: {fileID: 1451406407358514}
   accentLeft: {fileID: 1133633054637246}
-  accentIron: {fileID: 1651205573496036}
-  accentGold: {fileID: 1231679439703808}
   resource: 3
   resourceAmount: 2
+  accentIron: {fileID: 1651205573496036}
+  accentGold: {fileID: 1231679439703808}
 --- !u!212 &212040116976346780
 SpriteRenderer:
   m_ObjectHideFlags: 1

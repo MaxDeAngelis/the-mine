@@ -9,15 +9,19 @@ public class Node : MonoBehaviour {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public NODE_TYPE type;
 
+    // Accents for stone edges
     public GameObject accentTop;
     public GameObject accentRight;
     public GameObject accentBottom;
     public GameObject accentLeft;
-    public GameObject accentIron;
-    public GameObject accentGold;
 
+    // Resource settings
     public RESOURCE_TYPE resource = RESOURCE_TYPE.None;
     public int resourceAmount = 0;
+
+    // Resource accents
+    public GameObject accentIron;
+    public GameObject accentGold;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE VARIABLES											     ///
@@ -185,9 +189,9 @@ public class Node : MonoBehaviour {
         currentMarker.setText(text);
 	}
 
-    /// <summary>
-    /// Private marker class 
-    /// </summary>
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                               PRIVATE MARKER                                                 ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	private class Marker {
 		private Color color;
 		private TextMesh textMesh;
