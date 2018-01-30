@@ -27,6 +27,7 @@ public class JobManager : MonoBehaviour {
 	private Node _multiSelectStart;
 	private Node _hoveredNode;
 	private List<Node> _selectedNodes = new List<Node>();
+    private Dictionary<RESOURCE_TYPE, int> _selectedResourceCost = new Dictionary<RESOURCE_TYPE, int>();
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE FUNCTIONS											     ///
@@ -49,7 +50,7 @@ public class JobManager : MonoBehaviour {
 	/// </summary>
 	/// <returns><c>true</c>, if node should be highlighted for the job type, <c>false</c> otherwise</returns>
 	/// <param name="node">The node to check</param>
-	private bool _shouldNodeHighlight(Node node) {
+    private bool _shouldNodeHighlight(Node node) {
         bool shouldHighlight = false;
 
         // If there is no job defined
@@ -74,6 +75,7 @@ public class JobManager : MonoBehaviour {
             MapManager.Instance.setNodeMarker(node, false, Color.green, "");
 		}
 		_selectedNodes.Clear();
+        _selectedResourceCost.Clear();
 
 		// If multi select job then loop to highlight all nodes
 		if (_isMultiSelect) {
@@ -89,19 +91,38 @@ public class JobManager : MonoBehaviour {
 			// Start looping for X values
 			while(true) {
 				float tempY = startY;
-				// Loop over Z values
-
+				// Loop over x values unless hitting the constraints of the job
                 if (constraints.x != -1f && constraints.x == Mathf.Abs(tempX - startX)) {
                     break;
                 }
 				while(true) {
+                    // if the y constraint is met then fall out
                     if (constraints.y != -1f && constraints.y == Mathf.Abs(tempY - startY)) {
                         break;
                     }
 					// Get the node based on calculated location
                     Node node = MapManager.Instance.getNode(new Vector3(tempX, tempY, 0f));
 					if (node != null && _shouldNodeHighlight(node)) {
-						_selectedNodes.Add(node);
+                        bool isResourcesAvailable = true;
+                        // Check the combined resources to see if there is enough to build multiple jobs
+                        Dictionary<RESOURCE_TYPE, int> cost = tempJob.getResourceCost();
+                        foreach(KeyValuePair<RESOURCE_TYPE, int> resource in cost) {
+                            // If the key does not exist we need to add it
+                            if (_selectedResourceCost.ContainsKey(resource.Key)) {
+                                _selectedResourceCost[resource.Key] += resource.Value;
+                            } else {
+                                _selectedResourceCost.Add(resource.Key, resource.Value);
+                            }
+                            
+                            if (MapManager.Instance.isResourceAvailable(resource.Key, _selectedResourceCost[resource.Key]) == false) {
+                                isResourcesAvailable = false;
+                                break;
+                            }
+                        }
+                            
+                        if (isResourcesAvailable) {
+						    _selectedNodes.Add(node);
+                        }
 					}
 					if (tempY == endY) {
 						break;
@@ -137,9 +158,15 @@ public class JobManager : MonoBehaviour {
 	private void _registerJob(Job newJob) {
 		if (newJob != null) {
             _availableJobs.Add(newJob.getLocation(), newJob);
+
+            // If the job is a build job then need to mark the resources as needed
+            if (newJob.getType() == JOB_TYPE.Build) {
+                Dictionary<RESOURCE_TYPE, int> cost = ((Build)newJob).getResourceCost();
+                foreach(KeyValuePair<RESOURCE_TYPE, int> resource in cost) {
+                    MapManager.Instance.earMarkResource(resource.Key, resource.Value);
+                }
+            }
 		}
-		/* DEBUG */ //GameManager.Instance.updateAvailableJobs(_availableJobs);
-		/* DEBUG */ //GameManager.Instance.clearAllNodeColor();
 	}
 
 	/// <summary>

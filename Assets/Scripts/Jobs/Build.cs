@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class Build : Job {
     protected BUILD_SUB_TYPE _buildSubType;
     protected GameObject _finishedObject;
+    protected Dictionary<RESOURCE_TYPE, int> _resourceCost = new Dictionary<RESOURCE_TYPE, int>();
     private GameObject _objectToBuild;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +39,27 @@ public class Build : Job {
     }
 
     /// <summary>
+    /// Called to check if the resources for this job pending
+    /// </summary>
+    /// <returns><c>true</c>, if resources are available, <c>false</c> otherwise.</returns>
+    public bool isResourcesAvailable() {
+        foreach(KeyValuePair<RESOURCE_TYPE, int> resource in _resourceCost) {
+            if (MapManager.Instance.isResourceAvailable(resource.Key, resource.Value) == false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Gets the resource cost of this job
+    /// </summary>
+    /// <returns>The resource cost</returns>
+    public override Dictionary<RESOURCE_TYPE, int> getResourceCost() {
+        return _resourceCost;
+    }
+
+    /// <summary>
     /// Called to complete the build job. Handles clearing the tree and updating the ground nodes to be walkable
     /// </summary>
     public override void complete() {
@@ -49,5 +71,9 @@ public class Build : Job {
         // Instantiate item and move into place
         _finishedObject = GameObject.Instantiate(_objectToBuild) as GameObject;
         _finishedObject.transform.position = targetLocation;
+
+        foreach(KeyValuePair<RESOURCE_TYPE, int> resource in _resourceCost) {
+            MapManager.Instance.useResource(resource.Key, resource.Value);
+        }
     }
 }

@@ -11,6 +11,8 @@ public class BuildShaft : Build {
         _title = "Build \nShaft";
         _buildSubType = BUILD_SUB_TYPE.Shaft;
         _nodeToReplace = location;
+
+        _resourceCost.Add(RESOURCE_TYPE.Wood, 2);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +74,7 @@ public class BuildShaft : Build {
     /// <returns><c>true</c>, if valid location, <c>false</c> otherwise.</returns>
     public override bool isValidLocation() {
         bool isValid = false;
-        if (_location.getType() == NODE_TYPE.Stone) {
+        if (_location.getType() == NODE_TYPE.Stone && isResourcesAvailable()) {
             isValid = true;
             List<Node> locations = MapManager.Instance.getSurroundingNodes(_location);
 

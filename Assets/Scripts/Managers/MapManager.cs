@@ -27,6 +27,11 @@ public class MapManager : MonoBehaviour {
     public Text stone;
     public Text iron;
     public Text gold;
+    public Text pendingWood;
+    public Text pendingFood;
+    public Text pendingStone;
+    public Text pendingIron;
+    public Text pendingGold;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE VARIABLES											     ///
@@ -36,6 +41,7 @@ public class MapManager : MonoBehaviour {
 	/* Dictionaries of objects */
 	private Dictionary<Vector3, Node> _mapNodes = new Dictionary<Vector3, Node>();	
     private Dictionary<RESOURCE_TYPE, int> _resources = new Dictionary<RESOURCE_TYPE, int>();
+    private Dictionary<RESOURCE_TYPE, int> _pendingResources = new Dictionary<RESOURCE_TYPE, int>();
     private List<Item> _items = new List<Item>();
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,12 +62,18 @@ public class MapManager : MonoBehaviour {
 	/// Called on start of this game object
 	/// </summary>
 	private void Start() {
-        _resources[RESOURCE_TYPE.Wood] = 0;
-        _resources[RESOURCE_TYPE.Food] = 0;
+        _resources[RESOURCE_TYPE.Wood] = 50;
+        _resources[RESOURCE_TYPE.Food] = 100;
         _resources[RESOURCE_TYPE.Stone] = 0;
-        _resources[RESOURCE_TYPE.Iron] = 0;
+        _resources[RESOURCE_TYPE.Iron] = 5;
         _resources[RESOURCE_TYPE.Gold] = 0;
             
+        _pendingResources[RESOURCE_TYPE.Wood] = 0;
+        _pendingResources[RESOURCE_TYPE.Food] = 0;
+        _pendingResources[RESOURCE_TYPE.Stone] = 0;
+        _pendingResources[RESOURCE_TYPE.Iron] = 0;
+        _pendingResources[RESOURCE_TYPE.Gold] = 0;
+
 		_generate();
         _updateResources();
 	}
@@ -160,12 +172,35 @@ public class MapManager : MonoBehaviour {
         return returnValue;
     }
 
+    /// <summary>
+    /// Updated the resources list both pending and available
+    /// </summary>
     private void _updateResources() {
         wood.text = _resources[RESOURCE_TYPE.Wood].ToString();
         food.text = _resources[RESOURCE_TYPE.Food].ToString();
         stone.text = _resources[RESOURCE_TYPE.Stone].ToString();
         iron.text = _resources[RESOURCE_TYPE.Iron].ToString();
         gold.text = _resources[RESOURCE_TYPE.Gold].ToString();
+
+        _updatePendingResource(RESOURCE_TYPE.Wood, pendingWood);
+        _updatePendingResource(RESOURCE_TYPE.Food, pendingFood);
+        _updatePendingResource(RESOURCE_TYPE.Stone, pendingStone);
+        _updatePendingResource(RESOURCE_TYPE.Iron, pendingIron);
+        _updatePendingResource(RESOURCE_TYPE.Gold, pendingGold);
+    }
+
+    /// <summary>
+    /// Update the pending tag for the given resource
+    /// </summary>
+    /// <param name="type">Type of resource</param>
+    /// <param name="text">Text object for the resource</param>
+    private void _updatePendingResource(RESOURCE_TYPE type, Text text) {
+        if (_pendingResources[type] > 0) {
+            text.gameObject.SetActive(true);
+            text.text = "(" + _pendingResources[type].ToString() + ")";
+        } else {
+            text.gameObject.SetActive(false);
+        }
     }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -328,10 +363,50 @@ public class MapManager : MonoBehaviour {
         return null;
     }
 
+    /// <summary>
+    /// Mark a resource as ear marked and update the UI accordingly
+    /// </summary>
+    /// <param name="type">Type of resource</param>
+    /// <param name="amount">Amount to mark</param>
+    public void earMarkResource(RESOURCE_TYPE type, int amount) {
+        _resources[type] -= amount;
+        _pendingResources[type] += amount;
+        _updateResources();
+    }
+
+    /// <summary>
+    /// Add a resource to the available resources as long as its not None
+    /// </summary>
+    /// <param name="type">Type of resource</param>
+    /// <param name="amount">Amount to add</param>
     public void addResource(RESOURCE_TYPE type, int amount) {
         if (type != RESOURCE_TYPE.None) {
             _resources[type] += amount;
             _updateResources();
         }
+    }
+
+    /// <summary>
+    /// Use a resource. NOTE it will always come from the pending resources since things
+    /// should be marked as pending before a job is complete
+    /// </summary>
+    /// <param name="type">Type of resource</param>
+    /// <param name="amount">Amount to use</param>
+    public void useResource(RESOURCE_TYPE type, int amount) {
+        _pendingResources[type] -= amount;
+        _updateResources();
+    }
+
+    /// <summary>
+    /// Check if a resource is available
+    /// </summary>
+    /// <returns><c>true</c>, if resource is available, <c>false</c> otherwise.</returns>
+    /// <param name="type">Type.</param>
+    /// <param name="amount">Amount.</param>
+    public bool isResourceAvailable(RESOURCE_TYPE type, int amount) {
+        if (_resources[type] >= amount) {
+            return true;
+        }
+        return false;
     }
 }

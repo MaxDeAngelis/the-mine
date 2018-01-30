@@ -126,6 +126,10 @@ public class Job {
         return new Vector2(-1f, -1f);
     }
 
+    public virtual Dictionary<RESOURCE_TYPE, int> getResourceCost() {
+        return new Dictionary<RESOURCE_TYPE, int>();
+    }
+
     /// <summary>
     /// Ises the valid location.
     /// </summary>
