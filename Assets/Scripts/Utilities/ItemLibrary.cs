@@ -11,6 +11,7 @@ public class ItemLibrary : MonoBehaviour {
 	public GameObject tunnelBlock;
 	public GameObject stoneBlock;
     public GameObject shaftBlock;
+    public GameObject roomBlock;
 
     public GameObject lamp;
 

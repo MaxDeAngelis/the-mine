@@ -42,7 +42,7 @@ public class PlaceLamp : Build {
     public override bool isValidLocation() {
         if (isResourcesAvailable()) {
             Job job = JobManager.Instance.getJobByLocation(_location.transform.position);
-            if (_location.getType() == NODE_TYPE.Tunnel &&
+            if ((_location.getType() == NODE_TYPE.Tunnel || _location.getType() == NODE_TYPE.Room) &&
             MapManager.Instance.getItem(_location.transform.position) == null &&
             job == null) {
                 return true;

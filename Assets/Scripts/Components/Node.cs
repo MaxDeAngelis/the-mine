@@ -23,6 +23,14 @@ public class Node : MonoBehaviour {
     public GameObject accentIron;
     public GameObject accentGold;
 
+    // Room accents
+    public Sprite roomBottomLeft;
+    public Sprite roomBottomMiddle;
+    public Sprite roomBottomRight;
+    public Sprite roomTopLeft;
+    public Sprite roomTopMiddle;
+    public Sprite roomTopRight;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,37 +77,72 @@ public class Node : MonoBehaviour {
     /// Updates the block accents
     /// </summary>
     public void updateAccents() {
-        if (type != NODE_TYPE.Stone) {
-            return;
-        }
-
-        List<Node> nodes = MapManager.Instance.getSurroundingNodes(this);
+        List<Node> nodes = MapManager.Instance.getSurroundingNodes(this, false);
 
         Vector3 right = transform.position + Vector3.right;
         Vector3 top = transform.position + Vector3.up;
         Vector3 bottom = transform.position + Vector3.down;
         Vector3 left = transform.position + Vector3.left;
 
-        foreach (Node node in nodes) {
-            if (node.isTravelable()) {
-                if (node.transform.position == right) {
-                    accentRight.SetActive(true);
-                } else if (node.transform.position == top) {
-                    accentTop.SetActive(true);
-                } else if (node.transform.position == bottom) {
-                    accentBottom.SetActive(true);
-                } else if (node.transform.position == left) {
-                    accentLeft.SetActive(true);
+        if (type == NODE_TYPE.Stone) {
+            foreach (Node node in nodes) {
+                if (node.isTravelable()) {
+                    if (node.transform.position == right) {
+                        accentRight.SetActive(true);
+                    } else if (node.transform.position == top) {
+                        accentTop.SetActive(true);
+                    } else if (node.transform.position == bottom) {
+                        accentBottom.SetActive(true);
+                    } else if (node.transform.position == left) {
+                        accentLeft.SetActive(true);
+                    }
                 }
             }
-        }
 
-        if (resource == RESOURCE_TYPE.Iron) {
-            accentIron.SetActive(true);
-        }
+            if (resource == RESOURCE_TYPE.Iron) {
+                accentIron.SetActive(true);
+            }
 
-        if (resource == RESOURCE_TYPE.Gold) {
-            accentGold.SetActive(true);
+            if (resource == RESOURCE_TYPE.Gold) {
+                accentGold.SetActive(true);
+            }
+        } else if (type == NODE_TYPE.Room) {
+            bool isRight = false;
+            bool isLeft = false;
+            bool isTop = false;
+            bool isBottom = false;
+
+            // Loop over all surrounding nodes to see if ther are tunnels or rocks 
+            // Set flags accordingly for sprite assignment
+            foreach (Node node in nodes) {
+                Vector3 pos = node.transform.position;
+                if (node.getType() == NODE_TYPE.Stone || node.getType() == NODE_TYPE.Tunnel) {
+                    if (pos == right) {
+                        isRight = true;
+                    } else if (pos == top) {
+                        isTop = true;
+                    } else if (pos == bottom) {
+                        isBottom = true;
+                    } else if (pos == left) {
+                        isLeft = true;
+                    }
+                }
+            }
+            // Figure out what piece of a room it is to assign the sprite
+            SpriteRenderer render = gameObject.GetComponent<SpriteRenderer>();
+            if (isTop && isLeft) {
+                render.sprite = roomTopLeft;
+            } else if (isTop && isRight) {
+                render.sprite = roomTopRight;
+            } else if (isBottom && isLeft) {
+                render.sprite = roomBottomLeft;
+            } else if (isBottom && isRight) {
+                render.sprite = roomBottomRight;
+            } else if (isTop) {
+                render.sprite = roomTopMiddle;
+            } else if (isBottom) {
+                render.sprite = roomBottomMiddle;
+            }
         }
     }
 
@@ -131,7 +174,7 @@ public class Node : MonoBehaviour {
     /// </summary>
     /// <returns><c>true</c>, if travelable, <c>false</c> otherwise.</returns>
     public bool isTravelable() {
-        return (type == NODE_TYPE.Tunnel || type == NODE_TYPE.Shaft);
+        return (type == NODE_TYPE.Tunnel || type == NODE_TYPE.Shaft || type == NODE_TYPE.Room);
     }
 
     /// <summary>
@@ -139,7 +182,7 @@ public class Node : MonoBehaviour {
     /// </summary>
     /// <returns><c>true</c>, if walkable, <c>false</c> otherwise.</returns>
 	public bool isWalkable() {
-        return (type == NODE_TYPE.Tunnel);
+        return (type == NODE_TYPE.Tunnel || type == NODE_TYPE.Room);
 	}
 
 	/// <summary>

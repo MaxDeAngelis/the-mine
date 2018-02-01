@@ -2,15 +2,17 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class BuildTunnel : Build {
+public class BuildRoom : Build {
     private Node _nodeToReplace;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                                 CONSTRUCTOR                                                  ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public BuildTunnel(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.tunnelBlock) {
-        _title = "Build \nTunnel";
-        _buildSubType = BUILD_SUB_TYPE.Tunnel;
+    public BuildRoom(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.roomBlock) {
+        _title = "Build \nRoom";
+        _buildSubType = BUILD_SUB_TYPE.Room;
         _nodeToReplace = location;
+
+        //_resourceCost.Add(RESOURCE_TYPE.Stone, 2);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,15 +23,15 @@ public class BuildTunnel : Build {
     /// </summary>
     /// <returns>The action text.</returns>
     public override string getActionText() {
-        return "Building tunnel";
+        return "Building room";
     }
 
     /// <summary>
-    /// Gets the job selection constraints.
+    /// Gets the job selection constraints
     /// </summary>
-    /// <returns>The selection constraints.</returns>
+    /// <returns>The selection constraints</returns>
     public override Vector2 getSelectionConstraints() {
-        return new Vector2(-1f, 1f);
+        return new Vector2(-1f, 2f);
     }
 
     /// <summary>
@@ -37,15 +39,18 @@ public class BuildTunnel : Build {
     /// </summary>
     /// <returns>The list of nodes that the Job can be completed from</returns>
     public override List<Node> getWorkLocations() {
-        List<Node> potentialLocations = MapManager.Instance.getSurroundingNodes(_location, false);
-        List<Node> workLocations = new List<Node>();
+        List<Node> potentialLocations = new List<Node>();
+        potentialLocations = MapManager.Instance.getSurroundingNodes(_location, false);
 
-        Vector3 left = _location.transform.position + Vector3.left;
-        Vector3 right = _location.transform.position + Vector3.right;
+        List<Node> workLocations = new List<Node>();
+        workLocations.Add(_location);
+
+        Vector3 below = this.getLocation() + Vector3.down;
 
         foreach (Node node in potentialLocations) {
-            if (node.isTravelable() && (node.transform.position == left || node.transform.position == right)) {
+            if (node.transform.position == below) {
                 workLocations.Add(node);
+                break;
             }
         }
 
@@ -67,29 +72,27 @@ public class BuildTunnel : Build {
     }
 
     /// <summary>
-    /// Called to see if this is a valid location for this job to be completed
+    /// Called to see if the current node a valid location for this job
     /// </summary>
     /// <returns><c>true</c>, if valid location, <c>false</c> otherwise.</returns>
     public override bool isValidLocation() {
         bool isValid = false;
-        if (_location.getType() == NODE_TYPE.Stone) {
+        if (isResourcesAvailable()) {
             isValid = true;
-            List<Node> locations = MapManager.Instance.getSurroundingNodes(_location);
+            /*List<Node> locations = MapManager.Instance.getSurroundingNodes(_location);
 
-            Vector3 left = _location.transform.position + Vector3.left;
-            Vector3 right = _location.transform.position + Vector3.right;
+            Vector3 top = _location.transform.position + Vector3.up;
+            Vector3 bottom = _location.transform.position + Vector3.down;
 
             foreach (Node node in locations) {
-                // Check all surrounding nodes except left and right
-                if (node.transform.position != left && node.transform.position != right) {
-                    // Check all nodes around the location and if any are a tunnel then not allowed
+                if (node.transform.position != top && node.transform.position != bottom) {
                     Build job = (Build)JobManager.Instance.getJobByLocation(node.transform.position);
-                    if (node.getType() != NODE_TYPE.Stone || (job != null && job.getType() == JOB_TYPE.Build && job.getSubType() == BUILD_SUB_TYPE.Tunnel)) {
+                    if (node.getType() == NODE_TYPE.Shaft || (job != null && job.getType() == JOB_TYPE.Build && job.getSubType() == BUILD_SUB_TYPE.Shaft)) {
                         isValid = false;
                         break;
                     }
                 }
-            }
+            }*/
         }
         return isValid;
     }

@@ -194,6 +194,9 @@ public class JobManager : MonoBehaviour {
                     case BUILD_SUB_TYPE.Shaft:
                         newJob = new BuildShaft(node, 4, 0);
                         break;
+                    case BUILD_SUB_TYPE.Room:
+                        newJob = new BuildRoom(node, 4, 0);
+                        break;
                 }
                 break;
     		case JOB_TYPE.Move:
