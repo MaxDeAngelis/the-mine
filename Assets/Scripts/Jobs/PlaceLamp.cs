@@ -32,6 +32,11 @@ public class PlaceLamp : Build {
         List<Node> workLocations = new List<Node>();
         workLocations.Add(_location);
 
+        Node nodeBelow = MapManager.Instance.getNode(this.getLocation() + Vector3.down);
+        if (nodeBelow != null && nodeBelow.isWalkable()) {
+            workLocations.Add(nodeBelow);
+        }
+
         return workLocations;
     }
 

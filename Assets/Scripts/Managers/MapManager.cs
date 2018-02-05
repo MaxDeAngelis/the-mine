@@ -143,15 +143,13 @@ public class MapManager : MonoBehaviour {
 
         float iron = _perlinNoise(location.x, location.y, UnityEngine.Random.Range(7f, 10f), UnityEngine.Random.Range(7f, 10f));
         if (iron > 5f) {
-            mapNode.resource = RESOURCE_TYPE.Iron;
-            mapNode.resourceAmount = 2;
+            mapNode.addResource(RESOURCE_TYPE.Iron, 2);
             //setNodeMarker(mapNode, true, Color.cyan, iron.ToString());
         }
 
         float gold = _perlinNoise(location.x, location.y, UnityEngine.Random.Range(6f, 8f), UnityEngine.Random.Range(6f, 8f));
         if (gold > 5f) {
-            mapNode.resource = RESOURCE_TYPE.Gold;
-            mapNode.resourceAmount = 1;
+            mapNode.addResource(RESOURCE_TYPE.Gold, 1);
             //setNodeMarker(mapNode, true, Color.cyan, "");
         }
 	}

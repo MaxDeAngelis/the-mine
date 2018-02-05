@@ -12,6 +12,18 @@ public class BuildTunnel : Build {
         _buildSubType = BUILD_SUB_TYPE.Tunnel;
         _nodeToReplace = location;
     }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                               PUBLIC FUNCTIONS                                               ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>
+    /// Called to see if there is a job in the way
+    /// </summary>
+    /// <returns><c>true</c>, if job is in the way, <c>false</c> otherwise.</returns>
+    /// <param name="pos">Position to check</param>
+    private bool _isJobInWay(Vector3 pos) {
+        Build job = (Build)JobManager.Instance.getJobByLocation(pos);
+        return (job != null && job.getType() == JOB_TYPE.Build && job.getSubType() == BUILD_SUB_TYPE.Tunnel);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                               PUBLIC FUNCTIONS                                               ///
@@ -53,20 +65,6 @@ public class BuildTunnel : Build {
     }
 
     /// <summary>
-    /// Called to complete the build job. Handles clearing the tree and updating the ground nodes to be walkable
-    /// </summary>
-    public override void complete() {
-        base.complete();
-
-        MapManager.Instance.removeMapNode(_nodeToReplace);
-        MapManager.Instance.addMapNode(_finishedObject.GetComponent<Node>());
-
-        _nodeToReplace.mine();
-
-        JobManager.Instance.checkBlockedJobs();
-    }
-
-    /// <summary>
     /// Called to see if this is a valid location for this job to be completed
     /// </summary>
     /// <returns><c>true</c>, if valid location, <c>false</c> otherwise.</returns>
@@ -83,8 +81,7 @@ public class BuildTunnel : Build {
                 // Check all surrounding nodes except left and right
                 if (node.transform.position != left && node.transform.position != right) {
                     // Check all nodes around the location and if any are a tunnel then not allowed
-                    Build job = (Build)JobManager.Instance.getJobByLocation(node.transform.position);
-                    if (node.getType() != NODE_TYPE.Stone || (job != null && job.getType() == JOB_TYPE.Build && job.getSubType() == BUILD_SUB_TYPE.Tunnel)) {
+                    if (node.getType() != NODE_TYPE.Stone || _isJobInWay(node.transform.position)) {
                         isValid = false;
                         break;
                     }
@@ -92,5 +89,19 @@ public class BuildTunnel : Build {
             }
         }
         return isValid;
+    }
+
+    /// <summary>
+    /// Called to complete the build job. Handles clearing the tree and updating the ground nodes to be walkable
+    /// </summary>
+    public override void complete() {
+        base.complete();
+
+        MapManager.Instance.removeMapNode(_nodeToReplace);
+        MapManager.Instance.addMapNode(_finishedObject.GetComponent<Node>());
+
+        _nodeToReplace.mine();
+
+        JobManager.Instance.checkBlockedJobs();
     }
 }
