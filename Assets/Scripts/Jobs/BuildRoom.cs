@@ -19,6 +19,19 @@ public class BuildRoom : Build {
     ///                                               PUBLIC FUNCTIONS                                               ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>
+    /// Called to see if there is a job in the way
+    /// </summary>
+    /// <returns><c>true</c>, if job is in the way, <c>false</c> otherwise.</returns>
+    /// <param name="pos">Position to check</param>
+    private bool _isJobInWay(Vector3 pos) {
+        Build job = (Build)JobManager.Instance.getJobByLocation(pos);
+        return (job != null && job.getType() == JOB_TYPE.Build);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                               PUBLIC FUNCTIONS                                               ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>
     /// Gets the action text.
     /// </summary>
     /// <returns>The action text.</returns>
@@ -58,6 +71,51 @@ public class BuildRoom : Build {
     }
 
     /// <summary>
+    /// Called to see if the current node a valid location for this job
+    /// </summary>
+    /// <returns><c>true</c>, if valid location, <c>false</c> otherwise.</returns>
+    public override bool isValidLocation() {
+        bool isValid = false;
+        if (isResourcesAvailable() && !_isJobInWay(this.getLocation())) {
+            
+            // Only allowed to build on or above a tunnel
+            Node nodeBelow = MapManager.Instance.getNode(this.getLocation() + Vector3.down);
+            if (_location.getType() == NODE_TYPE.Tunnel || nodeBelow.getType() == NODE_TYPE.Tunnel) {
+                // Must have one tunnel space on each end
+                Vector3 bottomLeftLoc = this.getLocation() + Vector3.left;
+                Vector3 bottomRightLoc = this.getLocation() + Vector3.right;
+                if (nodeBelow.getType() == NODE_TYPE.Tunnel) {
+                    bottomLeftLoc += Vector3.down;
+                    bottomRightLoc += Vector3.down;
+                }
+                Node bottomLeft = MapManager.Instance.getNode(bottomLeftLoc);
+                Node bottomRight = MapManager.Instance.getNode(bottomRightLoc);
+                if (bottomLeft != null && (bottomLeft.getType() == NODE_TYPE.Tunnel || bottomLeft.getType() == NODE_TYPE.Room) && 
+                    bottomRight != null && (bottomRight.getType() == NODE_TYPE.Tunnel || bottomRight.getType() == NODE_TYPE.Room)) {
+                    isValid = true;
+                }
+            } 
+
+            // If there is a tunnel above the top then not valid
+            if (nodeBelow.getType() == NODE_TYPE.Tunnel) {
+                Vector3 above = this.getLocation() + Vector3.up;
+                List<Node> aboveNodes = new List<Node>();
+                aboveNodes.Add(MapManager.Instance.getNode(above));
+                aboveNodes.Add(MapManager.Instance.getNode(above + Vector3.right));
+                aboveNodes.Add(MapManager.Instance.getNode(above + Vector3.left));
+
+                foreach (Node node in aboveNodes) {
+                    if (node.getType() != NODE_TYPE.Stone || _isJobInWay(node.transform.position)) {
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return isValid;
+    }
+
+    /// <summary>
     /// Called to complete the build job. Handles clearing the tree and updating the ground nodes to be walkable
     /// </summary>
     public override void complete() {
@@ -69,31 +127,5 @@ public class BuildRoom : Build {
         _nodeToReplace.mine();
 
         JobManager.Instance.checkBlockedJobs();
-    }
-
-    /// <summary>
-    /// Called to see if the current node a valid location for this job
-    /// </summary>
-    /// <returns><c>true</c>, if valid location, <c>false</c> otherwise.</returns>
-    public override bool isValidLocation() {
-        bool isValid = false;
-        if (isResourcesAvailable()) {
-            isValid = true;
-            /*List<Node> locations = MapManager.Instance.getSurroundingNodes(_location);
-
-            Vector3 top = _location.transform.position + Vector3.up;
-            Vector3 bottom = _location.transform.position + Vector3.down;
-
-            foreach (Node node in locations) {
-                if (node.transform.position != top && node.transform.position != bottom) {
-                    Build job = (Build)JobManager.Instance.getJobByLocation(node.transform.position);
-                    if (node.getType() == NODE_TYPE.Shaft || (job != null && job.getType() == JOB_TYPE.Build && job.getSubType() == BUILD_SUB_TYPE.Shaft)) {
-                        isValid = false;
-                        break;
-                    }
-                }
-            }*/
-        }
-        return isValid;
     }
 }

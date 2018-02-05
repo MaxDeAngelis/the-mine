@@ -56,7 +56,7 @@ public class BuildTunnel : Build {
         Vector3 right = _location.transform.position + Vector3.right;
 
         foreach (Node node in potentialLocations) {
-            if (node.isTravelable() && (node.transform.position == left || node.transform.position == right)) {
+            if (node.transform.position == left || node.transform.position == right) {
                 workLocations.Add(node);
             }
         }
@@ -78,10 +78,9 @@ public class BuildTunnel : Build {
             Vector3 right = _location.transform.position + Vector3.right;
 
             foreach (Node node in locations) {
-                // Check all surrounding nodes except left and right
+                // Only consider nodes that are not left and right of root
                 if (node.transform.position != left && node.transform.position != right) {
-                    // Check all nodes around the location and if any are a tunnel then not allowed
-                    if (node.getType() != NODE_TYPE.Stone || _isJobInWay(node.transform.position)) {
+                    if (node.getType() == NODE_TYPE.Tunnel || node.getType() == NODE_TYPE.Room || _isJobInWay(node.transform.position)) {
                         isValid = false;
                         break;
                     }

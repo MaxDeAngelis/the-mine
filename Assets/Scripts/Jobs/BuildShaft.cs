@@ -19,6 +19,19 @@ public class BuildShaft : Build {
     ///                                               PUBLIC FUNCTIONS                                               ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>
+    /// Called to see if there is a job in the way
+    /// </summary>
+    /// <returns><c>true</c>, if job is in the way, <c>false</c> otherwise.</returns>
+    /// <param name="pos">Position to check</param>
+    private bool _isJobInWay(Vector3 pos) {
+        Build job = (Build)JobManager.Instance.getJobByLocation(pos);
+        return (job != null && job.getType() == JOB_TYPE.Build && job.getSubType() == BUILD_SUB_TYPE.Shaft);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                               PUBLIC FUNCTIONS                                               ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>
     /// Gets the action text.
     /// </summary>
     /// <returns>The action text.</returns>
@@ -83,8 +96,7 @@ public class BuildShaft : Build {
 
             foreach (Node node in locations) {
                 if (node.transform.position != top && node.transform.position != bottom) {
-                    Build job = (Build)JobManager.Instance.getJobByLocation(node.transform.position);
-                    if (node.getType() == NODE_TYPE.Shaft || (job != null && job.getType() == JOB_TYPE.Build && job.getSubType() == BUILD_SUB_TYPE.Shaft)) {
+                    if (node.getType() == NODE_TYPE.Shaft || _isJobInWay(node.transform.position)) {
                         isValid = false;
                         break;
                     }

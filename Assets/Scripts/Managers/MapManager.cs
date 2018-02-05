@@ -220,6 +220,17 @@ public class MapManager : MonoBehaviour {
 		return returnNode;
 	}
 
+    public bool isCorner(Node root, Node nodeToCheck) {
+        Vector3 posToCheck = nodeToCheck.transform.position;
+        Vector3 topRight = root.transform.position + Vector3.up + Vector3.right;
+        Vector3 topLeft = root.transform.position + Vector3.up + Vector3.left;
+        Vector3 bottomRight = root.transform.position + Vector3.down + Vector3.right;
+        Vector3 bottomLeft = root.transform.position + Vector3.down + Vector3.left;
+
+        return (posToCheck == topRight || posToCheck == topLeft || posToCheck == bottomRight || posToCheck == bottomLeft);
+
+    }
+
 	/// <summary>
 	/// Called to get all adjacent nodes to the given node. Always returns corners
 	/// </summary>
