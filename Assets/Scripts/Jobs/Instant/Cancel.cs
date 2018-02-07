@@ -51,6 +51,7 @@ public class Cancel : Job {
 
         // Calculate where to put new item
         Job job = JobManager.Instance.getJobByLocation(_location.transform.position);
+        MapManager.Instance.setNodeMarker(job.getLocationNode(), false, Color.yellow, "");
         job.cancel();
     }
 }

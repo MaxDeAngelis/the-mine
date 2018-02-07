@@ -202,10 +202,14 @@ public class Unit : MonoBehaviour {
     public void cancelJob() {
         _currentJob = null;
         _state = UNIT_STATE.Idle;
-        StopCoroutine(_doJobCoroutine);
+        if (_doJobCoroutine != null) {
+            StopCoroutine(_doJobCoroutine);
+        }
 
-        StopCoroutine(_progressCoroutine);
-        Destroy(_progressMarker);
+        if (_progressCoroutine != null) {
+            StopCoroutine(_progressCoroutine);
+            Destroy(_progressMarker);
+        }
     }
 
     public void speak(string text, float duration) {

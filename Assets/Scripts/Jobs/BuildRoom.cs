@@ -116,6 +116,14 @@ public class BuildRoom : Build {
     }
 
     /// <summary>
+    /// Get the minimum size of the job selection
+    /// </summary>
+    /// <returns>The selection minimum.</returns>
+    public override Vector2 getSelectionMinimum() {
+        return new Vector2(2f, 2f);
+    }
+
+    /// <summary>
     /// Called to complete the build job. Handles clearing the tree and updating the ground nodes to be walkable
     /// </summary>
     public override void complete() {

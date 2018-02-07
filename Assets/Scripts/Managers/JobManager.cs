@@ -23,7 +23,6 @@ public class JobManager : MonoBehaviour {
 
     private PathFinder _pathFinder = new PathFinder();
 	private bool _isMouseDown = false;
-	private bool _isMultiSelect = false;
 	private Node _multiSelectStart;
 	private Node _hoveredNode;
 	private List<Node> _selectedNodes = new List<Node>();
@@ -74,75 +73,87 @@ public class JobManager : MonoBehaviour {
 		foreach(Node node in _selectedNodes) {
             MapManager.Instance.setNodeMarker(node, false, Color.green, "");
 		}
+
+        // Clear the selection befor re calculating
 		_selectedNodes.Clear();
         _selectedResourceCost.Clear();
 
-		// If multi select job then loop to highlight all nodes
-		if (_isMultiSelect) {
-            Job tempJob = _createJob(_multiSelectStart);
-            Vector2 constraints = tempJob.getSelectionConstraints();
+        // Get a temp job for selection
+        Job tempJob = _createJob(_multiSelectStart);
 
-			// Get a reference to the X,Z locations of the nodes on the map
-			float startX = _multiSelectStart.transform.position.x;
-			float endX = _hoveredNode.transform.position.x;
-			float startY = _multiSelectStart.transform.position.y;
-			float endY = _hoveredNode.transform.position.y;
-            float tempX = startX;
-			// Start looping for X values
+		// Store off locations for calculating
+        Vector2 start = new Vector2(_multiSelectStart.transform.position.x, _multiSelectStart.transform.position.y);
+        Vector2 end = new Vector2(_hoveredNode.transform.position.x, _hoveredNode.transform.position.y);
+        Vector2 current = new Vector2(start.x , start.y);
+
+        // Also store off constraint info
+        Vector2 constraints = tempJob.getSelectionConstraints();
+        Vector2 minimum = tempJob.getSelectionMinimum();
+        Vector2 difference = new Vector2(Mathf.Abs(end.x - start.x) + 1, Mathf.Abs(end.y - start.y) + 1);
+
+        // Calculate the difference
+        if (difference.x < minimum.x) {
+            end.x += (minimum.x - difference.x);
+        }
+
+        // Need to convert to one based for comparison
+        if (difference.y < minimum.y) {
+            end.y += (minimum.y - difference.y);
+        }
+
+		// Start looping for X values
+		while(true) {
+            // Need to reset y for each loop
+            current.y = start.y;
+
+			// Loop over x values unless hitting the constraints of the job
+            if (constraints.x != -1f && constraints.x == Mathf.Abs(current.x - start.x)) {
+                break;
+            }
 			while(true) {
-				float tempY = startY;
-				// Loop over x values unless hitting the constraints of the job
-                if (constraints.x != -1f && constraints.x == Mathf.Abs(tempX - startX)) {
+                // if the y constraint is met then fall out
+                if (constraints.y != -1f && constraints.y == Mathf.Abs(current.y - start.y)) {
                     break;
                 }
-				while(true) {
-                    // if the y constraint is met then fall out
-                    if (constraints.y != -1f && constraints.y == Mathf.Abs(tempY - startY)) {
-                        break;
+				// Get the node based on calculated location
+                Node node = MapManager.Instance.getNode(new Vector3(current.x, current.y, 0f));
+				if (node != null && _shouldNodeHighlight(node)) {
+                    bool isResourcesAvailable = true;
+                    // Check the combined resources to see if there is enough to build multiple jobs
+                    Dictionary<RESOURCE_TYPE, int> cost = tempJob.getResourceCost();
+                    foreach(KeyValuePair<RESOURCE_TYPE, int> resource in cost) {
+                        // If the key does not exist we need to add it
+                        if (_selectedResourceCost.ContainsKey(resource.Key)) {
+                            _selectedResourceCost[resource.Key] += resource.Value;
+                        } else {
+                            _selectedResourceCost.Add(resource.Key, resource.Value);
+                        }
+                        
+                        if (MapManager.Instance.isResourceAvailable(resource.Key, _selectedResourceCost[resource.Key]) == false) {
+                            isResourcesAvailable = false;
+                            break;
+                        }
                     }
-					// Get the node based on calculated location
-                    Node node = MapManager.Instance.getNode(new Vector3(tempX, tempY, 0f));
-					if (node != null && _shouldNodeHighlight(node)) {
-                        bool isResourcesAvailable = true;
-                        // Check the combined resources to see if there is enough to build multiple jobs
-                        Dictionary<RESOURCE_TYPE, int> cost = tempJob.getResourceCost();
-                        foreach(KeyValuePair<RESOURCE_TYPE, int> resource in cost) {
-                            // If the key does not exist we need to add it
-                            if (_selectedResourceCost.ContainsKey(resource.Key)) {
-                                _selectedResourceCost[resource.Key] += resource.Value;
-                            } else {
-                                _selectedResourceCost.Add(resource.Key, resource.Value);
-                            }
-                            
-                            if (MapManager.Instance.isResourceAvailable(resource.Key, _selectedResourceCost[resource.Key]) == false) {
-                                isResourcesAvailable = false;
-                                break;
-                            }
-                        }
-                            
-                        if (isResourcesAvailable) {
-						    _selectedNodes.Add(node);
-                        }
-					}
-					if (tempY == endY) {
-						break;
-					} else if (startY > endY) {
-						tempY--;
-					} else {
-						tempY++;
-					}
+                        
+                    if (isResourcesAvailable) {
+					    _selectedNodes.Add(node);
+                    }
 				}
-                if (tempX == endX) {
+				if (current.y == end.y) {
 					break;
-				} else if (startX > endX) {
-                    tempX--;
+                } else if (start.y > end.y) {
+					current.y--;
 				} else {
-                    tempX++;
+					current.y++;
 				}
 			}
-		} else if (_shouldNodeHighlight(_hoveredNode)) {
-			// If sindle select then just add the hovered node to selected nodes
-			_selectedNodes.Add(_hoveredNode);
+            if (current.x == end.x) {
+				break;
+            } else if (start.x > end.x) {
+                current.x--;
+			} else {
+                current.x++;
+			}
 		}
 
 		// Highlight all the selected nodes
@@ -202,7 +213,7 @@ public class JobManager : MonoBehaviour {
     		case JOB_TYPE.Move:
     			newJob = new Move(node);
     			break;
-            case JOB_TYPE.Cancel:
+        case JOB_TYPE.Cancel:
                 newJob = new Cancel(node);
                 break;
 		}
@@ -300,12 +311,16 @@ public class JobManager : MonoBehaviour {
                 _availableJobs.Remove(returnJob.getLocation());
                 _inProgressJobs.Add(returnJob.getLocation(), returnJob);
             }
-			/* DEBUG */ //GameManager.Instance.updateAvailableJobs(_availableJobs);
 		}
 
 		return returnJob;
 	}
 
+    /// <summary>
+    /// Gets a job based on the location given 
+    /// </summary>
+    /// <returns>The job at the given location</returns>
+    /// <param name="location">Location</param>
     public Job getJobByLocation(Vector3 location) {
         if (_availableJobs.ContainsKey(location)) {
             return _availableJobs[location];
@@ -353,6 +368,11 @@ public class JobManager : MonoBehaviour {
 	public void handleMouseEnterNode(Node node) {
 		if (!isCommandSelected) { return; }
 
+        // Set multiselect if its null
+        if (_multiSelectStart == null) {
+            _multiSelectStart = node;
+        }
+
 		_hoveredNode = node;
 		_showJobSelection();
 	}
@@ -366,11 +386,10 @@ public class JobManager : MonoBehaviour {
 
 		_hoveredNode = null;
 
-		// If your mouse leaves the current node and you are not a multi select job then cancel 
-		if (!_isMultiSelect && _isMouseDown) {
-			isCommandSelected = false;
-			_isMouseDown = false;
-		}
+        // If the mouse is not down then clear multiselect
+        if (!_isMouseDown) {
+            _multiSelectStart = null;
+        }
 	}
 
 	/// <summary>
@@ -385,7 +404,6 @@ public class JobManager : MonoBehaviour {
             MapManager.Instance.setNodeMarker(singleNode, false, Color.green, "");
 
 			Job newJob = _createJob(singleNode);
-
             // If a Job was found
             if (newJob != null) {
                 if (newJob.isInstant()) {
@@ -399,7 +417,6 @@ public class JobManager : MonoBehaviour {
 		_selectedNodes.Clear();
 		isCommandSelected = false;
 		_isMouseDown = false;
-		_isMultiSelect = false;
 		_multiSelectStart = null;
 		_hoveredNode = null;
 	}
@@ -412,16 +429,5 @@ public class JobManager : MonoBehaviour {
 		if (!isCommandSelected) { return; }
 
 		_isMouseDown = true;
-		switch(_commandType) {
-            case JOB_TYPE.Place:
-    		case JOB_TYPE.Move:
-    			break;
-            case JOB_TYPE.Build:
-            case JOB_TYPE.Cancel:
-    		default:
-    			_isMultiSelect = true;	
-    			_multiSelectStart = node;
-    			break;
-		}
 	}
 }

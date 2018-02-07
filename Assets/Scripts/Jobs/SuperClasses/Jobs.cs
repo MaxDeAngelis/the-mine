@@ -126,6 +126,18 @@ public class Job {
         return new Vector2(-1f, -1f);
     }
 
+    /// <summary>
+    /// Get the minimum size of the job selection
+    /// </summary>
+    /// <returns>The selection minimum.</returns>
+    public virtual Vector2 getSelectionMinimum() {
+        return new Vector2(1f, 1f);
+    }
+
+    /// <summary>
+    /// Get the resource cost of this job
+    /// </summary>
+    /// <returns>The resource cost</returns>
     public virtual Dictionary<RESOURCE_TYPE, int> getResourceCost() {
         return new Dictionary<RESOURCE_TYPE, int>();
     }
