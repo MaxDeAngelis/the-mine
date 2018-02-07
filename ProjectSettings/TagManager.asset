@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Marker
   - Marker-Text
+  - Unit-Life
+  - Unit-Life-Container
   layers:
   - Default
   - TransparentFX

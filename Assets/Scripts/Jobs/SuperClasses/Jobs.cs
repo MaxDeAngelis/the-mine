@@ -58,6 +58,14 @@ public class Job {
     }
 
     /// <summary>
+    /// Get the workers for this job
+    /// </summary>
+    /// <returns>The workers</returns>
+    public List<Unit> getWorkers() {
+        return _workers;
+    }
+
+    /// <summary>
     /// Cancels this job by telling workers to stop working
     /// </summary>
     public void cancel() {

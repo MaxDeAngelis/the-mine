@@ -235,6 +235,18 @@ public class JobManager : MonoBehaviour {
 	}
 
     /// <summary>
+    /// Called to return the given job to the blocked list
+    /// </summary>
+    /// <param name="job">The Job</param>
+    public void returnJob(Job job) {
+        _availableJobs.Add(job.getLocation(), job);
+        if (_inProgressJobs.ContainsKey(job.getLocation())) {
+            _inProgressJobs.Remove(job.getLocation());
+        }
+        MapManager.Instance.setNodeMarker(job.getLocationNode(), true, Color.yellow, job.getTitle());
+    }
+
+    /// <summary>
     /// Remove the finished job from the in progress list
     /// </summary>
     /// <param name="job">Job</param>
@@ -244,6 +256,10 @@ public class JobManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Cancel the given job
+    /// </summary>
+    /// <param name="job">Job to cancel</param>
     public void cancelJob(Job job) {
         if (_availableJobs.ContainsKey(job.getLocation())) {
             _availableJobs.Remove(job.getLocation());
@@ -258,6 +274,11 @@ public class JobManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Called to check if there is a job at the goven location
+    /// </summary>
+    /// <returns><c>true</c>, if job is defined, <c>false</c> otherwise.</returns>
+    /// <param name="loc">Location to check</param>
     public bool isJobDefined(Vector3 loc) {
         return (_blockedJobs.ContainsKey(loc) || _availableJobs.ContainsKey(loc) || _inProgressJobs.ContainsKey(loc));
     }

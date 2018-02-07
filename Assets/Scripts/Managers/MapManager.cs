@@ -220,6 +220,12 @@ public class MapManager : MonoBehaviour {
 		return returnNode;
 	}
 
+    /// <summary>
+    /// Called to see if the node to check is a corner based on root
+    /// </summary>
+    /// <returns><c>true</c>, if nodeToCheck is a corner node for root, <c>false</c> otherwise.</returns>
+    /// <param name="root">Root.</param>
+    /// <param name="nodeToCheck">Node to check.</param>
     public bool isCorner(Node root, Node nodeToCheck) {
         Vector3 posToCheck = nodeToCheck.transform.position;
         Vector3 topRight = root.transform.position + Vector3.up + Vector3.right;
@@ -419,5 +425,18 @@ public class MapManager : MonoBehaviour {
             return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// Called to find an open bed
+    /// </summary>
+    /// <returns>The bed node</returns>
+    public Node findBed() {
+        foreach(Node node in _mapNodes.Values) {
+            if (node.getType() == NODE_TYPE.Tunnel) {
+                return node;
+            }
+        }
+        return null;
     }
 }

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Unit : MonoBehaviour {
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                             PUBLIC VARIABLES                                                 ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private float SLEEP_INTERVAL = 20f;
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,13 +30,24 @@ public class Unit : MonoBehaviour {
     // Talking
     private TextMesh _talk;
     private IEnumerator _speachCoroutine;
+
+    // Needs
+    private bool _isFulfillingNeed = false;
+
+    private IEnumerator _sleepCoroutine;
+    private bool _isSleepy = false;
+
+    // Stats
+    private float _life = 100f;
+    private float _maxLife = 100f;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>
 	/// Called when the Game Object is started
 	/// </summary>
-	private void Start () {
+	private void Awake () {
         _talk = gameObject.FindChildWithTag("Marker-Text").GetComponent<TextMesh>();
         _talk.gameObject.GetComponent<Renderer>().sortingLayerName = "Marker-Text";
 	}
@@ -41,6 +56,10 @@ public class Unit : MonoBehaviour {
 	/// Called once per frame at a consistent 60FPS
 	/// </summary>
 	private void FixedUpdate () {
+        if (!isMoving() && !_isFulfillingNeed) {
+            _checkNeeds();
+        }
+
 		if (isWorking()) {
 			return;
         } else if (isIdle()) {
@@ -78,7 +97,7 @@ public class Unit : MonoBehaviour {
 					_nextPathNode = _pathFinder.getNextNode();
 				}
 			}
-		} else if (_currentJob != null) {
+        } else if (_currentJob != null) {
 			List<Node> jobWorkLocations = _currentJob.getWorkLocations();
 
 			// If the Job has work nodes then find the best path
@@ -102,7 +121,7 @@ public class Unit : MonoBehaviour {
 			}
 		}
 	}
-
+        
 	/// <summary>
 	/// Called to find the ground node that the unit is standing on
 	/// </summary>
@@ -115,6 +134,49 @@ public class Unit : MonoBehaviour {
 
 		return MapManager.Instance.getNode(locationStandingOn);
 	}
+
+    /// <summary>
+    /// Called to check if the unit needs anything
+    /// </summary>
+    private void _checkNeeds() {
+        // If sleep timer is not running then start one
+        if (_sleepCoroutine == null) {
+            _sleepCoroutine = _sleepTimer();
+            StartCoroutine(_sleepCoroutine);
+        }
+
+        // If unit is sleepy then cancel current job and sleep
+        if (_isSleepy) {
+            _isFulfillingNeed = true;
+
+            // Cancel timer for now
+            StopCoroutine(_sleepCoroutine);
+            _sleepCoroutine = null;
+
+            speak("I'm sleepy", 1f);
+
+            // If we have a job return it
+            if (_currentJob != null) {
+                _currentJob.removeWorker(this);
+                JobManager.Instance.returnJob(_currentJob);
+                cancelJob();
+            }
+
+            // Start new sleep job
+            _currentJob = new Sleep();;
+            _currentJob.addWorker(this);
+            _state = UNIT_STATE.Busy;
+        }
+    }
+        
+    /// <summary>
+    /// Starts a sleep timer to know when the next time the unit needs to sleep
+    /// </summary>
+    /// <returns>The sleep timer.</returns>
+    private IEnumerator _sleepTimer() {
+        yield return new WaitForSeconds(SLEEP_INTERVAL);
+        _isSleepy = true;
+    }
 
     /// <summary>
     /// Called to actually do the work of the current Job
@@ -166,6 +228,36 @@ public class Unit : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Called to update the health bar for the unit
+    /// </summary>
+    private IEnumerator _updateHealth() {
+        GameObject lifeContainer = gameObject.FindChildWithTag("Unit-Life-Container");
+        Transform life = lifeContainer.FindChildWithTag("Unit-Life").transform;
+        lifeContainer.SetActive(true);
+
+        // Calculate the current calculations
+        float currentHealh = (_life / _maxLife);
+        float currentScale = life.localScale.x;
+        float currentX = life.localPosition.x;
+        float deltaTime = 0.002f;
+        float dx = 0.01f;
+
+        // Loop and adjust until zero
+        while (currentScale > currentHealh) {
+            currentScale -= dx;
+            currentX -= dx / 2;
+            life.localScale = new Vector3(currentScale, life.localScale.y, life.localScale.z);
+            life.localPosition = new Vector3(currentX, life.localPosition.y, life.localPosition.z);
+            yield return new WaitForSeconds(deltaTime);
+        }
+    }
+
+    /// <summary>
+    /// Enumerator for speaking, shows text for given time
+    /// </summary>
+    /// <param name="text">Text to say</param>
+    /// <param name="duration">Duration to show text</param>
     private IEnumerator _say(string text, float duration) {
         _talk.text = text;
         _talk.gameObject.SetActive(true);
@@ -199,6 +291,17 @@ public class Unit : MonoBehaviour {
 		return (_state == UNIT_STATE.Working);
 	}
 
+    /// <summary>
+    /// Called to wake up the unit if they are sleeping
+    /// </summary>
+    public void wakeup() {
+        _isFulfillingNeed = false;
+        _isSleepy = false;
+    }
+
+    /// <summary>
+    /// Called to cancel the current job and return to idle
+    /// </summary>
     public void cancelJob() {
         _currentJob = null;
         _state = UNIT_STATE.Idle;
@@ -212,6 +315,11 @@ public class Unit : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Called to have the unit speak
+    /// </summary>
+    /// <param name="text">Text to say</param>
+    /// <param name="duration">Duration to show text</param>
     public void speak(string text, float duration) {
         if (_speachCoroutine != null) {
             StopCoroutine(_speachCoroutine);
