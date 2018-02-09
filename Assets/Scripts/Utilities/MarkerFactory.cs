@@ -101,7 +101,7 @@ public class MarkerFactory {
         public GameObject obj;
 
         public Marker(Color _color) {
-            obj = GameObject.Instantiate(ItemLibrary.Instance.marker) as GameObject;
+            obj = GameObject.Instantiate(ItemManager.Instance.marker) as GameObject;
 
             color = _color;
             color.a = 0.3f;

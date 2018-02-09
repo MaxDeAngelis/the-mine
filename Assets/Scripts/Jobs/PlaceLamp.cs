@@ -6,7 +6,7 @@ public class PlaceLamp : Build {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                                 CONSTRUCTOR                                                  ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public PlaceLamp(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.lamp) {
+    public PlaceLamp(Node location, float duration, float progress) : base(location, duration, progress, ItemManager.Instance.lamp) {
         _title = "Place \nLamp";
 
         _resourceCost.Add(RESOURCE_TYPE.Iron, 1);
@@ -48,21 +48,12 @@ public class PlaceLamp : Build {
         if (isResourcesAvailable()) {
             Job job = JobManager.Instance.getJobByLocation(_location.transform.position);
             if ((_location.getType() == NODE_TYPE.Tunnel || _location.getType() == NODE_TYPE.Room) &&
-            MapManager.Instance.getItem(_location.transform.position) == null &&
+            ItemManager.Instance.getItem(_location.transform.position) == null &&
             job == null) {
                 return true;
             }
         }
 
         return false;
-    }
-
-    /// <summary>
-    /// Called to complete the build job. Handles clearing the tree and updating the ground nodes to be walkable
-    /// </summary>
-    public override void complete() {
-        base.complete();
-
-        MapManager.Instance.addItem(_finishedObject.GetComponent<Item>());
     }
 }

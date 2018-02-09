@@ -7,6 +7,7 @@ public class Unit : MonoBehaviour {
     ///                                             PUBLIC VARIABLES                                                 ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private float SLEEP_INTERVAL = 20f;
+    private float HUNGER_INTERVAL = 10f;
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,6 +21,7 @@ public class Unit : MonoBehaviour {
 	private PathFinder _pathFinder = new PathFinder();
 	private Node _nextPathNode;
     private IEnumerator _doJobCoroutine;
+
 	// TODO: will want some concept of normal speed for walk penilties 
 	// private float _normalMovementSpeed;
 
@@ -34,8 +36,13 @@ public class Unit : MonoBehaviour {
     // Needs
     private bool _isFulfillingNeed = false;
 
+    // Sleep
     private IEnumerator _sleepCoroutine;
     private bool _isSleepy = false;
+
+    // Hunger
+    private IEnumerator _hungerCoroutine;
+    private bool _isHungry = false;
 
     // Stats
     private float _life = 100f;
@@ -139,21 +146,50 @@ public class Unit : MonoBehaviour {
     /// Called to check if the unit needs anything
     /// </summary>
     private void _checkNeeds() {
+        Job _newJob = null;
         // If sleep timer is not running then start one
         if (_sleepCoroutine == null) {
             _sleepCoroutine = _sleepTimer();
             StartCoroutine(_sleepCoroutine);
         }
 
+        // If the hunger timer is not running then start it
+        if (_hungerCoroutine == null) {
+            _hungerCoroutine = _hungerTimer();
+            StartCoroutine(_hungerCoroutine);
+        }
+
         // If unit is sleepy then cancel current job and sleep
         if (_isSleepy) {
-            _isFulfillingNeed = true;
-
             // Cancel timer for now
             StopCoroutine(_sleepCoroutine);
             _sleepCoroutine = null;
 
             speak("I'm sleepy", 1f);
+
+            // Start new sleep job
+            _newJob = new Sleep();
+        } else if (_isHungry) {
+            // Cancel timer for now
+            StopCoroutine(_hungerCoroutine);
+            _hungerCoroutine = null;
+
+            speak("I'm hungry", 1f);
+
+            // Start new sleep job
+            _newJob = new Eat();
+
+            // If there is no food available then take damage
+            if (!((Eat)_newJob).isFoodAvailable()) {
+                takeDamage(10f);
+                _newJob = null;
+                needFulfilled(NEED_TYPE.Eat);
+            }
+        }
+            
+        // If unit is hungry or sleepy then cancel work
+        if (_newJob != null) {
+            _isFulfillingNeed = true;
 
             // If we have a job return it
             if (_currentJob != null) {
@@ -162,8 +198,7 @@ public class Unit : MonoBehaviour {
                 cancelJob();
             }
 
-            // Start new sleep job
-            _currentJob = new Sleep();;
+            _currentJob = _newJob;
             _currentJob.addWorker(this);
             _state = UNIT_STATE.Busy;
         }
@@ -176,6 +211,15 @@ public class Unit : MonoBehaviour {
     private IEnumerator _sleepTimer() {
         yield return new WaitForSeconds(SLEEP_INTERVAL);
         _isSleepy = true;
+    }
+
+    /// <summary>
+    /// Starts a sleep timer to know when the next time the unit needs to sleep
+    /// </summary>
+    /// <returns>The sleep timer.</returns>
+    private IEnumerator _hungerTimer() {
+        yield return new WaitForSeconds(HUNGER_INTERVAL);
+        _isHungry = true;
     }
 
     /// <summary>
@@ -212,7 +256,7 @@ public class Unit : MonoBehaviour {
         color.a = 0.5f;
 
         // Create a new marker
-        _progressMarker = MonoBehaviour.Instantiate(ItemLibrary.Instance.marker) as GameObject;
+        _progressMarker = MonoBehaviour.Instantiate(ItemManager.Instance.marker) as GameObject;
         _progressMarker.transform.SetParent(_currentJob.getLocationNode().transform);
         _progressMarker.transform.localPosition = new Vector3(0f, currentY, 0f);
         _progressMarker.transform.localScale = new Vector3(0.9f, 0f, 1f);
@@ -292,11 +336,36 @@ public class Unit : MonoBehaviour {
 	}
 
     /// <summary>
-    /// Called to wake up the unit if they are sleeping
+    /// Called when the unit is taking damage
     /// </summary>
-    public void wakeup() {
+    /// <param name="amount">Amount to reduce health</param>
+    public void takeDamage(float amount) {
+        float newLife = _life - amount;
+
+        if (newLife <= 0f) {
+            _life = 0f;
+            Destroy(gameObject);
+        } else {
+            _life -= amount;
+            StartCoroutine(_updateHealth());
+        }
+    }
+
+    /// <summary>
+    /// Called to fulfill a need
+    /// </summary>
+    /// <param name="type">Type of need</param>
+    public void needFulfilled(NEED_TYPE type) {
         _isFulfillingNeed = false;
-        _isSleepy = false;
+
+        switch (type) {
+            case NEED_TYPE.Eat:
+                _isHungry = false;
+                break;
+            case NEED_TYPE.Sleep:
+                _isSleepy = false;
+                break;
+        }
     }
 
     /// <summary>

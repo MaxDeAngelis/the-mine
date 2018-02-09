@@ -7,7 +7,7 @@ public class BuildRoom : Build {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                                 CONSTRUCTOR                                                  ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public BuildRoom(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.roomBlock) {
+    public BuildRoom(Node location, float duration, float progress) : base(location, duration, progress, ItemManager.Instance.roomBlock) {
         _title = "Build \nRoom";
         _buildSubType = BUILD_SUB_TYPE.Room;
         _nodeToReplace = location;

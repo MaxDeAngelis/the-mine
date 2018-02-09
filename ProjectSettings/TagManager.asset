@@ -51,6 +51,9 @@ TagManager:
   - name: Map-Accent
     uniqueID: 3071337235
     locked: 0
+  - name: Item
+    uniqueID: 203548481
+    locked: 0
   - name: Marker
     uniqueID: 495842599
     locked: 0

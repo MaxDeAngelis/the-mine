@@ -13,7 +13,6 @@ public class Item : MonoBehaviour {
     ///                                             PRIVATE VARIABLES                                                ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                             PRIVATE FUNCTIONS                                                ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,6 +21,12 @@ public class Item : MonoBehaviour {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                             PUBLIC FUNCTIONS                                                 ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>
+    /// Start this instance
+    /// </summary>
+    public void Start() {
+        ItemManager.Instance.addItem(this);
+    }
 
     /// <summary>
     /// Gets the type.
@@ -37,5 +42,13 @@ public class Item : MonoBehaviour {
     /// <returns>The location.</returns>
     public Vector3 getLocation() {
         return transform.position;
+    }
+
+    /// <summary>
+    /// Gets the location node
+    /// </summary>
+    /// <returns>The location.</returns>
+    public Node getLocationNode() {
+        return MapManager.Instance.getNode(transform.position);
     }
 }

@@ -1,19 +1,25 @@
 ﻿using System;
 
+public enum GAME_TIME { Paused, Quarter, Half, Full, Double, Tripple, Quadrupal }
+
+// Work related 
 public enum JOB_TYPE { None, Cancel, Move, Place, Build, Need };
 
 public enum BUILD_SUB_TYPE { None, Tunnel, Shaft, Room };
 
-public enum PLACE_SUB_TYPE { None, Miner, Lamp };
+public enum PLACE_SUB_TYPE { None, Miner, Lamp, Potato };
 
-public enum NEED_SUB_TYPE { Sleep }
+// Unit related 
+public enum UNIT_STATE {Idle, Busy, Working, Moving};
+
+public enum NEED_TYPE { Sleep, Eat }
+
+
+// Node related
+public enum NODE_TYPE { Tunnel, Stone, Shaft, Room };
 
 public enum RESOURCE_TYPE { None, Wood, Food, Stone, Iron, Gold };
 
-public enum UNIT_STATE {Idle, Busy, Working, Moving};
 
-public enum NODE_TYPE { Tunnel, Stone, Shaft, Room };
-
-public enum ITEM_TYPE { Lamp }
-
-public enum GAME_TIME { Paused, Quarter, Half, Full, Double, Tripple, Quadrupal }
+// Items
+public enum ITEM_TYPE { Lamp, Food };

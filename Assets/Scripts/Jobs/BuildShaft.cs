@@ -7,7 +7,7 @@ public class BuildShaft : Build {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                                 CONSTRUCTOR                                                  ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public BuildShaft(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.shaftBlock) {
+    public BuildShaft(Node location, float duration, float progress) : base(location, duration, progress, ItemManager.Instance.shaftBlock) {
         _title = "Build \nShaft";
         _buildSubType = BUILD_SUB_TYPE.Shaft;
         _nodeToReplace = location;

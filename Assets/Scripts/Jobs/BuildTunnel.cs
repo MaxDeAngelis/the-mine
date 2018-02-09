@@ -7,7 +7,7 @@ public class BuildTunnel : Build {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                                 CONSTRUCTOR                                                  ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public BuildTunnel(Node location, float duration, float progress) : base(location, duration, progress, ItemLibrary.Instance.tunnelBlock) {
+    public BuildTunnel(Node location, float duration, float progress) : base(location, duration, progress, ItemManager.Instance.tunnelBlock) {
         _title = "Build \nTunnel";
         _buildSubType = BUILD_SUB_TYPE.Tunnel;
         _nodeToReplace = location;

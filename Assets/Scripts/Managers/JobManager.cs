@@ -190,7 +190,10 @@ public class JobManager : MonoBehaviour {
             case JOB_TYPE.Place:
                 switch (_placeSubType) {
                     case PLACE_SUB_TYPE.Miner:
-                        newJob = new PlaceMiner(node);
+                        newJob = new Place(node, ItemManager.Instance.miner);
+                        break;
+                    case PLACE_SUB_TYPE.Potato:
+                        newJob = new Place(node, ItemManager.Instance.potato);
                         break;
                     case PLACE_SUB_TYPE.Lamp:
                         newJob = new PlaceLamp(node, 2, 0);

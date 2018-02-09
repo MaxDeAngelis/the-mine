@@ -2,13 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class PlaceMiner : Build {
+public class Place : Build {
     private Node _nodeToReplace;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                                 CONSTRUCTOR                                                  ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public PlaceMiner(Node location) : base(location, 0f, 0f, ItemLibrary.Instance.miner) {
-        _title = "Place \nMiner";
+    public Place(Node location, GameObject objectToPlace) : base(location, 0f, 0f, objectToPlace) {
+        _title = "Place \n" + objectToPlace.name;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

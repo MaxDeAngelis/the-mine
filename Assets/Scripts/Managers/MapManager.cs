@@ -42,7 +42,7 @@ public class MapManager : MonoBehaviour {
 	private Dictionary<Vector3, Node> _mapNodes = new Dictionary<Vector3, Node>();	
     private Dictionary<RESOURCE_TYPE, int> _resources = new Dictionary<RESOURCE_TYPE, int>();
     private Dictionary<RESOURCE_TYPE, int> _pendingResources = new Dictionary<RESOURCE_TYPE, int>();
-    private List<Item> _items = new List<Item>();
+
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE FUNCTIONS											     ///
@@ -118,9 +118,9 @@ public class MapManager : MonoBehaviour {
 				// Setup default ground block information
 				nodeLocation.y = y;
 
-				GameObject blockToCreate = ItemLibrary.Instance.tunnelBlock;
+				GameObject blockToCreate = ItemManager.Instance.tunnelBlock;
 				if (y != _origin.y || Vector3.Distance(nodeLocation, _origin) > 3f) {
-					blockToCreate = ItemLibrary.Instance.stoneBlock;
+					blockToCreate = ItemManager.Instance.stoneBlock;
 				} 
 
 				_createMapNode(blockToCreate, nodeLocation);
@@ -356,29 +356,7 @@ public class MapManager : MonoBehaviour {
 		}
 	}
 
-    /// <summary>
-    /// Adds the item.
-    /// </summary>
-    /// <param name="item">Item.</param>
-    public void addItem(Item item) {
-        _items.Add(item);
-    }
 
-    /// <summary>
-    /// Gets the item based off the location given
-    /// </summary>
-    /// <returns>The item.</returns>
-    /// <param name="location">Location to find item at</param>
-    public Item getItem(Vector3 location) {
-        if (_items.Count > 0) {
-            foreach(Item item in _items) {
-                if (item.getLocation() == location) {
-                    return item;
-                }
-            }
-        }
-        return null;
-    }
 
     /// <summary>
     /// Mark a resource as ear marked and update the UI accordingly
@@ -439,4 +417,6 @@ public class MapManager : MonoBehaviour {
         }
         return null;
     }
+
+
 }
