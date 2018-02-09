@@ -11,6 +11,7 @@ public class Eat : Need {
         _food = ItemManager.Instance.findFood();
         if (_food != null) {
             _location = _food.getLocationNode();
+            MapManager.Instance.earMarkResource(RESOURCE_TYPE.Food, _food.getAmount());
         } else {
             _location = null;
         }

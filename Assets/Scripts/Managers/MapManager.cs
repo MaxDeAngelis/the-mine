@@ -63,7 +63,7 @@ public class MapManager : MonoBehaviour {
 	/// </summary>
 	private void Start() {
         _resources[RESOURCE_TYPE.Wood] = 50;
-        _resources[RESOURCE_TYPE.Food] = 100;
+        _resources[RESOURCE_TYPE.Food] = 0;
         _resources[RESOURCE_TYPE.Stone] = 0;
         _resources[RESOURCE_TYPE.Iron] = 5;
         _resources[RESOURCE_TYPE.Gold] = 0;

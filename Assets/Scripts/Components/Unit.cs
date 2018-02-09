@@ -146,7 +146,6 @@ public class Unit : MonoBehaviour {
     /// Called to check if the unit needs anything
     /// </summary>
     private void _checkNeeds() {
-        Job _newJob = null;
         // If sleep timer is not running then start one
         if (_sleepCoroutine == null) {
             _sleepCoroutine = _sleepTimer();
@@ -160,6 +159,7 @@ public class Unit : MonoBehaviour {
         }
 
         // If unit is sleepy then cancel current job and sleep
+        Job _newJob = null;
         if (_isSleepy) {
             // Cancel timer for now
             StopCoroutine(_sleepCoroutine);

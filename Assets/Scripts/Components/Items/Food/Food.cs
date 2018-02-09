@@ -7,6 +7,7 @@ public class Food : Item {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                             PUBLIC VARIABLES                                                 ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public int amount = 1;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                             PRIVATE VARIABLES                                                ///
@@ -25,12 +26,18 @@ public class Food : Item {
     public new void Start() {
         type = ITEM_TYPE.Food;
         ItemManager.Instance.addItem(this);
+        MapManager.Instance.addResource(RESOURCE_TYPE.Food, amount);
     }
 
     /// <summary>
     /// Eat this instance
     /// </summary>
     public void eat() {
+        MapManager.Instance.useResource(RESOURCE_TYPE.Food, amount);
         Destroy(gameObject);
+    }
+
+    public int getAmount() {
+        return amount;
     }
 }
