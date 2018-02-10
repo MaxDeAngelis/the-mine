@@ -18,15 +18,6 @@ public class BuildRoom : Build {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                               PUBLIC FUNCTIONS                                               ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>
-    /// Called to see if there is a job in the way
-    /// </summary>
-    /// <returns><c>true</c>, if job is in the way, <c>false</c> otherwise.</returns>
-    /// <param name="pos">Position to check</param>
-    private bool _isJobInWay(Vector3 pos) {
-        Build job = (Build)JobManager.Instance.getJobByLocation(pos);
-        return (job != null && job.getType() == JOB_TYPE.Build);
-    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                               PUBLIC FUNCTIONS                                               ///
@@ -76,7 +67,7 @@ public class BuildRoom : Build {
     /// <returns><c>true</c>, if valid location, <c>false</c> otherwise.</returns>
     public override bool isValidLocation() {
         bool isValid = false;
-        if (isResourcesAvailable() && !_isJobInWay(this.getLocation())) {
+        if (isResourcesAvailable() && !isJobInWay(this.getLocation(), BUILD_SUB_TYPE.None)) {
             
             // Only allowed to build on or above a tunnel
             Node nodeBelow = MapManager.Instance.getNode(this.getLocation() + Vector3.down);
@@ -105,7 +96,7 @@ public class BuildRoom : Build {
                 aboveNodes.Add(MapManager.Instance.getNode(above + Vector3.left));
 
                 foreach (Node node in aboveNodes) {
-                    if (node.getType() != NODE_TYPE.Stone || _isJobInWay(node.transform.position)) {
+                    if (node.getType() != NODE_TYPE.Stone || isJobInWay(node.transform.position, BUILD_SUB_TYPE.None)) {
                         isValid = false;
                         break;
                     }

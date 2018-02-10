@@ -15,15 +15,6 @@ public class BuildTunnel : Build {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                               PUBLIC FUNCTIONS                                               ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>
-    /// Called to see if there is a job in the way
-    /// </summary>
-    /// <returns><c>true</c>, if job is in the way, <c>false</c> otherwise.</returns>
-    /// <param name="pos">Position to check</param>
-    private bool _isJobInWay(Vector3 pos) {
-        Build job = (Build)JobManager.Instance.getJobByLocation(pos);
-        return (job != null && job.getType() == JOB_TYPE.Build && job.getSubType() == BUILD_SUB_TYPE.Tunnel);
-    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                               PUBLIC FUNCTIONS                                               ///
@@ -70,7 +61,7 @@ public class BuildTunnel : Build {
     /// <returns><c>true</c>, if valid location, <c>false</c> otherwise.</returns>
     public override bool isValidLocation() {
         bool isValid = false;
-        if (_location.getType() == NODE_TYPE.Stone) {
+        if (_location.getType() == NODE_TYPE.Stone && !isJobInWay(this.getLocation(), BUILD_SUB_TYPE.None)) {
             isValid = true;
             List<Node> locations = MapManager.Instance.getSurroundingNodes(_location);
 
@@ -80,7 +71,7 @@ public class BuildTunnel : Build {
             foreach (Node node in locations) {
                 // Only consider nodes that are not left and right of root
                 if (node.transform.position != left && node.transform.position != right) {
-                    if (node.getType() == NODE_TYPE.Tunnel || node.getType() == NODE_TYPE.Room || _isJobInWay(node.transform.position)) {
+                    if (node.getType() == NODE_TYPE.Tunnel || node.getType() == NODE_TYPE.Room || isJobInWay(node.transform.position, BUILD_SUB_TYPE.Tunnel)) {
                         isValid = false;
                         break;
                     }

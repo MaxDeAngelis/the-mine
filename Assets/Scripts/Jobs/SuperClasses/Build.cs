@@ -52,6 +52,19 @@ public class Build : Job {
     }
 
     /// <summary>
+    /// Called to check if a job is in the way of the given location
+    /// </summary>
+    /// <returns><c>true</c>, if there is a job in the way, <c>false</c> otherwise.</returns>
+    public bool isJobInWay(Vector3 pos, BUILD_SUB_TYPE subType) {
+        Build job = (Build)JobManager.Instance.getJobByLocation(pos);
+        if (subType != BUILD_SUB_TYPE.None) {
+            return (job != null && job.getType() == JOB_TYPE.Build && job.getSubType() == subType);
+        } else {
+            return (job != null && job.getType() == JOB_TYPE.Build);
+        }
+    }
+
+    /// <summary>
     /// Gets the resource cost of this job
     /// </summary>
     /// <returns>The resource cost</returns>
