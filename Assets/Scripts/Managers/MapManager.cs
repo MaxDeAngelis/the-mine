@@ -404,19 +404,4 @@ public class MapManager : MonoBehaviour {
         }
         return false;
     }
-
-    /// <summary>
-    /// Called to find an open bed
-    /// </summary>
-    /// <returns>The bed node</returns>
-    public Node findBed() {
-        foreach(Node node in _mapNodes.Values) {
-            if (node.getType() == NODE_TYPE.Tunnel) {
-                return node;
-            }
-        }
-        return null;
-    }
-
-
 }

@@ -91,7 +91,7 @@ public class JobFactory {
 			case BUILD_TYPE.Furniture:
 				switch (_furnitureType) {
 					case FURNITURE_TYPE.Bed:
-						// TODO: Need to add a new bed job here
+						newJob = new BuildFurnitureBed(node, 3, 0);
 						break;
 				}
 				break;

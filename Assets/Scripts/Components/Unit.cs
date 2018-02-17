@@ -168,7 +168,7 @@ public class Unit : MonoBehaviour {
             speak("I'm sleepy", 1f);
 
             // Start new sleep job
-            _newJob = new Sleep();
+            _newJob = new Sleep(MapManager.Instance.getNode(transform.position));
         } else if (_isHungry) {
             // Cancel timer for now
             StopCoroutine(_hungerCoroutine);

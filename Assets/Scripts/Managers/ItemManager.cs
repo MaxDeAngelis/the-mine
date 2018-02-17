@@ -15,6 +15,8 @@ public class ItemManager : MonoBehaviour {
     public GameObject miner;
     public GameObject lamp;
 
+    public GameObject bed;
+
     public GameObject potato;
     public GameObject marker;
 
@@ -78,7 +80,7 @@ public class ItemManager : MonoBehaviour {
         Food returnFood = null;
 
         foreach(Item item in _items) {
-            if (item.getType() == ITEM_TYPE.Food) {
+            if (item is Food) {
                 returnFood = (Food)item;
                 break;
             }
@@ -88,5 +90,26 @@ public class ItemManager : MonoBehaviour {
         _items.Remove(returnFood);
 
         return returnFood;
+    }
+
+    /// <summary>
+    /// Called to find an open bed
+    /// </summary>
+    /// <returns>The bed node</returns>
+    public Furniture findBed() {
+        Furniture returnBed = null;
+
+        foreach(Item item in _items) {
+            if (item is Furniture) {
+                Furniture furniture = (Furniture)item;
+
+                if (furniture.getType() == FURNITURE_TYPE.Bed) {
+                    returnBed = furniture;
+                    break;
+                }
+            }
+        }
+
+        return returnBed;
     }
 }

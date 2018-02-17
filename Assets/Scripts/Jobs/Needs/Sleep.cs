@@ -6,8 +6,13 @@ public class Sleep : Need {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                                 CONSTRUCTOR                                                  ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Sleep() : base(10f) {
-        _location = MapManager.Instance.findBed();
+    public Sleep(Node currentLocation) : base(10f) {
+        Furniture bed = ItemManager.Instance.findBed();
+        if (bed != null) {
+            _location = bed.getLocationNode();
+        } else {
+            _location = currentLocation;
+        }
         _title = "Sleep";
         _needSubType = NEED_TYPE.Sleep;
     }

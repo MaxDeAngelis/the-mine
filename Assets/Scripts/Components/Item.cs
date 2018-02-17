@@ -7,7 +7,6 @@ public class Item : MonoBehaviour {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                             PUBLIC VARIABLES                                                 ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public ITEM_TYPE type;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                             PRIVATE VARIABLES                                                ///
@@ -26,14 +25,6 @@ public class Item : MonoBehaviour {
     /// </summary>
     public void Start() {
         ItemManager.Instance.addItem(this);
-    }
-
-    /// <summary>
-    /// Gets the type.
-    /// </summary>
-    /// <returns>The type.</returns>
-    public ITEM_TYPE getType() {
-        return type;
     }
 
     /// <summary>

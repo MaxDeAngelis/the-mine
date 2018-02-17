@@ -1,13 +1,10 @@
 ﻿using UnityEngine;
-using UnityEditor;
-using System.Collections;
-using System.Collections.Generic;
 
-public class Food : Item {
+public class Furniture : Item {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                             PUBLIC VARIABLES                                                 ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public int amount = 1;
+    public FURNITURE_TYPE type;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                             PRIVATE VARIABLES                                                ///
@@ -17,27 +14,11 @@ public class Food : Item {
     ///                                             PRIVATE FUNCTIONS                                                ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                             PUBLIC FUNCTIONS                                                 ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>
-    /// Start this instance
-    /// </summary>
-    public new void Start() {
-        type = ITEM_TYPE.Food;
-        ItemManager.Instance.addItem(this);
-        MapManager.Instance.addResource(RESOURCE_TYPE.Food, amount);
-    }
-
-    /// <summary>
-    /// Eat this instance
-    /// </summary>
-    public void eat() {
-        MapManager.Instance.useResource(RESOURCE_TYPE.Food, amount);
-        Destroy(gameObject);
-    }
-
-    public int getAmount() {
-        return amount;
-    }
+	public FURNITURE_TYPE getType() {
+		return type;
+	}
 }
