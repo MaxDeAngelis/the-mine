@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4653228174049714}
   - component: {fileID: 23330237693320854}
   - component: {fileID: 102017679140935936}
-  m_Layer: 30
+  m_Layer: 31
   m_Name: Text
   m_TagString: Marker-Text
   m_Icon: {fileID: 0}
@@ -37,7 +37,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4399397090210418}
   - component: {fileID: 212083316094522268}
-  m_Layer: 30
+  m_Layer: 31
   m_Name: Marker
   m_TagString: Marker
   m_Icon: {fileID: 0}
@@ -158,7 +158,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 495842599
-  m_SortingLayer: 3
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: b697e67a18f65417eaedec2cb41b0273, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

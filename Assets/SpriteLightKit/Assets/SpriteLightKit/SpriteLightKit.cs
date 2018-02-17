@@ -122,7 +122,7 @@ namespace Prime31
 
 			_spriteLightCamera.CopyFrom( mainCamera );
 			mainCamera.cullingMask ^= lightLayer;
-			Debug.Log( "Be sure to remove the lightLayer set on the SpriteLightKit component from your main camera's culling mask!" );
+            Debug.Log( "Be sure to remove the lightLayer set on the SpriteLightKit component from your main camera's culling mask!" );
 
 			// set our custom settings here
 			_spriteLightCamera.cullingMask = lightLayer;
@@ -159,7 +159,7 @@ namespace Prime31
 
 				if( rtWidth == 0 || rtHeight == 0 )
 				{
-					Debug.LogWarning( "RT height or width rounded to 0. Defaulting to the camera pixelWidth" );
+                    UnityEngine.Debug.LogWarning( "RT height or width rounded to 0. Defaulting to the camera pixelWidth" );
 					rtWidth = _spriteLightCamera.pixelWidth;
 					rtHeight = _spriteLightCamera.pixelWidth;
 				}
@@ -168,7 +168,7 @@ namespace Prime31
 				var format = (RenderTextureFormat)( (int)rtFormat );
 				if( !SystemInfo.SupportsRenderTextureFormat( format ) )
 				{
-					Debug.LogWarning( "Invalid texture format for this system. Defaulting to RenderTextureFormat.Default" );
+                    UnityEngine.Debug.LogWarning( "Invalid texture format for this system. Defaulting to RenderTextureFormat.Default" );
 					format = RenderTextureFormat.Default;
 				}
 

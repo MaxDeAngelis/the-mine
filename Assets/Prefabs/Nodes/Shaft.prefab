@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4157032586693414}
   - component: {fileID: 212381874920946056}
-  m_Layer: 31
+  m_Layer: 30
   m_Name: Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -215,7 +215,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1211817795
-  m_SortingLayer: 6
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300002, guid: e7227a2d9681e455483e41246c46f660, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0.49019608}

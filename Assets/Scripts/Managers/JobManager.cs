@@ -8,7 +8,6 @@ public class JobManager : MonoBehaviour {
 	/// 								     		PUBLIC VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static JobManager Instance;
-	public bool isCommandSelected = false;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE VARIABLES											     ///
@@ -16,11 +15,7 @@ public class JobManager : MonoBehaviour {
     private Dictionary<Vector3, Job> _availableJobs = new Dictionary<Vector3, Job>();	
     private Dictionary<Vector3, Job> _blockedJobs = new Dictionary<Vector3, Job>();
     private Dictionary<Vector3, Job> _inProgressJobs = new Dictionary<Vector3, Job>();
-
-	private JOB_TYPE _commandType;
-	private BUILD_SUB_TYPE _buildSubType;
-    private PLACE_SUB_TYPE _placeSubType;
-
+    private JobFactory _jobFactory;
     private PathFinder _pathFinder = new PathFinder();
 	private bool _isMouseDown = false;
 	private Node _multiSelectStart;
@@ -37,7 +32,7 @@ public class JobManager : MonoBehaviour {
 	private void Awake () {
 		if (Instance != null)
 		{
-			Debug.LogError("Multiple instances of JobManager!");
+            Debug.LogError("Multiple instances of JobManager!");
 		}
 		Instance = this;
 
@@ -56,7 +51,7 @@ public class JobManager : MonoBehaviour {
         // FIXME need to find a better way of doing this
         //if (isJobDefined(node.transform.position) == false) {
             // Create temp job and check if valid node
-            Job tempJob = _createJob(node);
+            Job tempJob = _jobFactory.createJob(node);
             if (tempJob != null) {
                 shouldHighlight = tempJob.isValidLocation();
             }
@@ -79,7 +74,7 @@ public class JobManager : MonoBehaviour {
         _selectedResourceCost.Clear();
 
         // Get a temp job for selection
-        Job tempJob = _createJob(_multiSelectStart);
+        Job tempJob = _jobFactory.createJob(_multiSelectStart);
 
 		// Store off locations for calculating
         Vector2 start = new Vector2(_multiSelectStart.transform.position.x, _multiSelectStart.transform.position.y);
@@ -171,7 +166,7 @@ public class JobManager : MonoBehaviour {
             _availableJobs.Add(newJob.getLocation(), newJob);
 
             // If the job is a build job then need to mark the resources as needed
-            if (newJob.getType() == JOB_TYPE.Build) {
+            if (newJob.GetType() == typeof(Build)) {
                 Dictionary<RESOURCE_TYPE, int> cost = ((Build)newJob).getResourceCost();
                 foreach(KeyValuePair<RESOURCE_TYPE, int> resource in cost) {
                     MapManager.Instance.earMarkResource(resource.Key, resource.Value);
@@ -180,49 +175,6 @@ public class JobManager : MonoBehaviour {
 		}
 	}
 
-	/// <summary>
-	/// Create a job for the given node
-	/// </summary>
-	/// <param name="node">The node</param>
-	private Job _createJob(Node node) {
-		Job newJob = null;
-		switch(_commandType) {
-            case JOB_TYPE.Place:
-                switch (_placeSubType) {
-                    case PLACE_SUB_TYPE.Miner:
-                        newJob = new Place(node, ItemManager.Instance.miner);
-                        break;
-                    case PLACE_SUB_TYPE.Potato:
-                        newJob = new Place(node, ItemManager.Instance.potato);
-                        break;
-                    case PLACE_SUB_TYPE.Lamp:
-                        newJob = new PlaceLamp(node, 2, 0);
-                        break;
-                }
-                break;
-            case JOB_TYPE.Build:
-                switch (_buildSubType) {
-                    case BUILD_SUB_TYPE.Tunnel:
-                        newJob = new BuildTunnel(node, 3, 0);
-                        break;
-                    case BUILD_SUB_TYPE.Shaft:
-                        newJob = new BuildShaft(node, 4, 0);
-                        break;
-                    case BUILD_SUB_TYPE.Room:
-                        newJob = new BuildRoom(node, 4, 0);
-                        break;
-                }
-                break;
-    		case JOB_TYPE.Move:
-    			newJob = new Move(node);
-    			break;
-        case JOB_TYPE.Cancel:
-                newJob = new Cancel(node);
-                break;
-		}
-
-        return newJob;
-	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -254,7 +206,7 @@ public class JobManager : MonoBehaviour {
     /// </summary>
     /// <param name="job">Job</param>
     public void finishJob(Job job) {
-        if (job.getType() != JOB_TYPE.Cancel) {
+        if (job.GetType() != typeof(Cancel)) {
             _inProgressJobs.Remove(job.getLocation());
         }
     }
@@ -308,7 +260,6 @@ public class JobManager : MonoBehaviour {
         }
 
         unblockedJobs.Clear();
-        /* DEBUG */ //GameManager.Instance.updateAvailableJobs(_availableJobs);
     }
 
 	/// <summary>
@@ -361,36 +312,19 @@ public class JobManager : MonoBehaviour {
         return null;
     }
 
-	/// <summary>
-	/// Called to set the command type that is about to be issued
-	/// </summary>
-	/// <param name="type">Type of job</param>
-	public void setCommandType(JOB_TYPE type) {
-		_commandType = type;
-	}
-
     /// <summary>
-    /// Called to set the build sub type command
+    /// Called to set the job factory for the given job
     /// </summary>
-    /// <param name="subType">Sub type.</param>
-	public void setBuildSubType(BUILD_SUB_TYPE subType) {
-		_buildSubType = subType;
-	}
-
-    /// <summary>
-    /// Called to set the place sub type
-    /// </summary>
-    /// <param name="subType">Sub type.</param>
-    public void setPlaceSubType(PLACE_SUB_TYPE subType) {
-        _placeSubType = subType;
+    /// <param name="factory">The factory to use</param>
+    public void setJobFactory(JobFactory factory) {
+        _jobFactory = factory;
     }
-
 	/// <summary>
 	/// Called to handle mouse enter of a map node
 	/// </summary>
 	/// <param name="node">Map node</param>
 	public void handleMouseEnterNode(Node node) {
-		if (!isCommandSelected) { return; }
+		if (_jobFactory == null) { return; }
 
         // Set multiselect if its null
         if (_multiSelectStart == null) {
@@ -406,7 +340,7 @@ public class JobManager : MonoBehaviour {
 	/// </summary>
 	/// <param name="node">Map node</param>
 	public void handleMouseExitNode(Node node) {
-		if (!isCommandSelected) { return; }
+		if (_jobFactory == null) { return; }
 
 		_hoveredNode = null;
 
@@ -421,13 +355,13 @@ public class JobManager : MonoBehaviour {
 	/// </summary>
 	/// <param name="node">Map node</param>
 	public void handleMouseUpNode(Node node) {
-		if (!isCommandSelected) { return; }
+		if (_jobFactory == null) { return; }
 
 		// Loop over all the selected nodes and create the appropriate jobs
 		foreach(Node singleNode in _selectedNodes) {
             MapManager.Instance.setNodeMarker(singleNode, false, Color.green, "");
 
-			Job newJob = _createJob(singleNode);
+			Job newJob = _jobFactory.createJob(singleNode);
             // If a Job was found
             if (newJob != null) {
                 if (newJob.isInstant()) {
@@ -439,10 +373,10 @@ public class JobManager : MonoBehaviour {
             }
 		}
 		_selectedNodes.Clear();
-		isCommandSelected = false;
 		_isMouseDown = false;
 		_multiSelectStart = null;
 		_hoveredNode = null;
+        _jobFactory = null;
 	}
 
 	/// <summary>
@@ -450,7 +384,7 @@ public class JobManager : MonoBehaviour {
 	/// </summary>
 	/// <param name="node">Map node</param>
 	public void handleMouseDownNode(Node node) {
-		if (!isCommandSelected) { return; }
+		if (_jobFactory == null) { return; }
 
 		_isMouseDown = true;
 	}

@@ -33,7 +33,7 @@ public class ItemManager : MonoBehaviour {
 	private void Awake () {
 		if (Instance != null)
 		{
-			Debug.LogError("Multiple instances of ItemManager!");
+            Debug.LogError("Multiple instances of ItemManager!");
 		}
 		Instance = this;
 	}

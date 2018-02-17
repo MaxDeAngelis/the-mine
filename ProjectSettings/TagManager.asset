@@ -40,7 +40,7 @@ TagManager:
   - 
   - 
   - Lights
-  - 
+  - Markers
   m_SortingLayers:
   - name: Default
     uniqueID: 0
@@ -54,15 +54,15 @@ TagManager:
   - name: Item
     uniqueID: 203548481
     locked: 0
-  - name: Marker
-    uniqueID: 495842599
-    locked: 0
-  - name: Marker-Text
-    uniqueID: 988098479
-    locked: 0
   - name: Unit
     uniqueID: 4245229297
     locked: 0
   - name: Light
     uniqueID: 1211817795
+    locked: 0
+  - name: Marker
+    uniqueID: 495842599
+    locked: 0
+  - name: Marker-Text
+    uniqueID: 988098479
     locked: 0

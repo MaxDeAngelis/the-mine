@@ -46,8 +46,6 @@
 		"**/*.prefab":true,
 		"**/*.unity":true,
 		".collabignore":true,
-		"*.csproj":true,
-		"the-mine.sln":true,
 		"build/":true,
 		"Build/":true,
 		"Library/":true,

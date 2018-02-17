@@ -2,10 +2,21 @@
 using System.Collections;
 
 public class JobButton : Button {
-	public JOB_TYPE type;
-	public BUILD_SUB_TYPE buildSubType;
-    public PLACE_SUB_TYPE placeSubType;
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                             PUBLIC VARIABLES                                                ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public JOB_TYPE jobType;
+	public BUILD_TYPE buildType;
+	public DECOR_TYPE decorType;
+	public FURNITURE_TYPE furnitureType;
+	public ITEM_TYPE itemType;
+	public DEBUG_TYPE debugType;
+	public NODE_TYPE nodeType;
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///                                             PRIVATE VARIABLES                                                ///
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private JobFactory _jobFactory;
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC FUNCTIONS											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -14,9 +25,7 @@ public class JobButton : Button {
     /// Select function for the button called on click
     /// </summary>
     public void select() {
-		JobManager.Instance.isCommandSelected = true;
-		JobManager.Instance.setCommandType(type);
-		JobManager.Instance.setBuildSubType(buildSubType);
-        JobManager.Instance.setPlaceSubType(placeSubType);
+		_jobFactory = new JobFactory(jobType, buildType, decorType, furnitureType, itemType, debugType, nodeType);
+		JobManager.Instance.setJobFactory(_jobFactory);
 	}
 }

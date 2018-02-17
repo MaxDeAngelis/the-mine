@@ -53,7 +53,7 @@ public class MapManager : MonoBehaviour {
 	private void Awake () {
 		if (Instance != null)
 		{
-			Debug.LogError("Multiple instances of MapManager!");
+            Debug.LogError("Multiple instances of MapManager!");
 		}
 		Instance = this;
 	}
