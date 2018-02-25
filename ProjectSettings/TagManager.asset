@@ -57,6 +57,9 @@ TagManager:
   - name: Unit
     uniqueID: 4245229297
     locked: 0
+  - name: Unit-Accent
+    uniqueID: 3639789817
+    locked: 0
   - name: Light
     uniqueID: 1211817795
     locked: 0

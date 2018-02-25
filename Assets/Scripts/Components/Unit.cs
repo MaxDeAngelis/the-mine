@@ -6,8 +6,8 @@ public class Unit : MonoBehaviour {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                             PUBLIC VARIABLES                                                 ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    private float SLEEP_INTERVAL = 20f;
-    private float HUNGER_INTERVAL = 10f;
+    private float SLEEP_INTERVAL = 120f;
+    private float HUNGER_INTERVAL = 60f;
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PUBLIC VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,9 @@ public class Unit : MonoBehaviour {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// 								     		PRIVATE VARIABLES											     ///
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	private UNIT_STATE _state = UNIT_STATE.Idle;
+	private Animator _animator;
+    private Rigidbody2D _rigidbody;
+    private UNIT_STATE _state = UNIT_STATE.Idle;
 	private Job _currentJob;
 	private PathFinder _pathFinder = new PathFinder();
 	private Node _nextPathNode;
@@ -57,6 +59,9 @@ public class Unit : MonoBehaviour {
 	private void Awake () {
         _talk = gameObject.FindChildWithTag("Marker-Text").GetComponent<TextMesh>();
         _talk.gameObject.GetComponent<Renderer>().sortingLayerName = "Marker-Text";
+        _animator = GetComponent<Animator>();
+        _rigidbody = GetComponent<Rigidbody2D>();
+        //_animator.SetFloat("horizontalSpeed", 1f);
 	}
 
 	/// <summary>
@@ -81,12 +86,21 @@ public class Unit : MonoBehaviour {
 			Vector3 target = _nextPathNode.transform.position;
 			Vector3 dir = (target - transform.position).normalized;		
 			dir *= movementSpeed * Time.deltaTime;									
-			GetComponent<Rigidbody2D>().velocity = dir;	
+			_rigidbody.velocity = dir;	
 
+            // Flip direction based on which direction you are moving
+            if (dir.x < 0) {
+                transform.localScale = new Vector3(-1f, 1f, 1f);
+            } else {
+                transform.localScale = new Vector3(1f, 1f, 1f);
+            }            
+
+            // If within range move to next node
 			if (Vector3.Distance (transform.position, target) < 0.1f) {
-				transform.position = target;
+				//transform.position = target;
 				if (_pathFinder.isEmpty()) {
-					GetComponent<Rigidbody2D>().velocity = new Vector3(0, 0, 0);
+					_rigidbody.velocity = new Vector3(0, 0, 0);
+                    transform.position = target;
 					_pathFinder.nullify();
                     _state = UNIT_STATE.Working;
 
@@ -102,8 +116,17 @@ public class Unit : MonoBehaviour {
                     StartCoroutine(_progressCoroutine);
 				} else {
 					_nextPathNode = _pathFinder.getNextNode();
-				}
+				}                
 			}
+
+            if (_nextPathNode is ShaftNode) {
+                _animator.SetBool("climbing", true);
+            } else {
+                _animator.SetBool("climbing", false);
+            }
+
+            _animator.SetFloat("horizontalSpeed", Mathf.Abs(_rigidbody.velocity.x));
+            _animator.SetFloat("verticalSpeed", Mathf.Abs(_rigidbody.velocity.y));
         } else if (_currentJob != null) {
 			List<Node> jobWorkLocations = _currentJob.getWorkLocations();
 

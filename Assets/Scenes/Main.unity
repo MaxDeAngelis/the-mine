@@ -113,37 +113,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!84 &64378667
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: SpriteLightKit RT
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_Width: 830
-  m_Height: 449
-  m_AntiAliasing: 1
-  m_DepthFormat: 1
-  m_ColorFormat: 0
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 0
-    m_Aniso: 0
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!1 &64665342
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,7 +514,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shader: {fileID: 4800000, guid: 09755a4891f8d4526a7e0690a23dec7b, type: 3}
-  spriteLightRT: {fileID: 64378667}
+  spriteLightRT: {fileID: 709983991}
   intensity: 1.25
 --- !u!1 &301010734
 GameObject:
@@ -1033,7 +1002,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 3221225472
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 64378667}
+  m_TargetTexture: {fileID: 709983991}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -1478,6 +1447,37 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!84 &709983991
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: SpriteLightKit RT
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_Width: 830
+  m_Height: 431
+  m_AntiAliasing: 1
+  m_DepthFormat: 1
+  m_ColorFormat: 0
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 0
+    m_Aniso: 0
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1 &758894416
 GameObject:
   m_ObjectHideFlags: 0
@@ -4761,6 +4761,24 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4831196726032374, guid: 0c1fe70d4ccaf45b9ad79b23c0541a21, type: 2}
       propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 212642847032433056, guid: 0c1fe70d4ccaf45b9ad79b23c0541a21,
+        type: 2}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 44e461d7e54fe429c9bd94afdfe9a985,
+        type: 3}
+    - target: {fileID: 4507182145939970, guid: 0c1fe70d4ccaf45b9ad79b23c0541a21, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: -0.0784
+      objectReference: {fileID: 0}
+    - target: {fileID: 4507182145939970, guid: 0c1fe70d4ccaf45b9ad79b23c0541a21, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: -0.1403
+      objectReference: {fileID: 0}
+    - target: {fileID: 1693567162907000, guid: 0c1fe70d4ccaf45b9ad79b23c0541a21, type: 2}
+      propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
