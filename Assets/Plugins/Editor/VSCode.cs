@@ -4,7 +4,7 @@
  * Seamless support for Microsoft Visual Studio Code in Unity
  *
  * Version:
- *   2.8
+ *   2.9
  *
  * Authors:
  *   Matthew Davey <matthew.davey@dotbunny.com>
@@ -23,7 +23,7 @@ namespace dotBunny.Unity
         /// <summary>
         /// Current Version Number
         /// </summary>
-        public const float Version = 2.8f;
+        public const float Version = 2.9f;
 
         /// <summary>
         /// Current Version Code
@@ -39,6 +39,9 @@ namespace dotBunny.Unity
         /// Download URL for Unity Debbuger
         /// </summary>
         public const string UnityDebuggerURL = "https://unity.gallery.vsassets.io/_apis/public/gallery/publisher/unity/extension/unity-debug/latest/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage";
+
+        // Used to keep Unity from crashing when the editor is quit
+        static bool alreadyFixedPreferences;
 
         #region Properties
 
@@ -70,15 +73,18 @@ namespace dotBunny.Unity
         /// </summary>
         /// <returns>The platforms "Program Files" path.</returns>
         static string ProgramFilesx86()
-		{
-			if( 8 == IntPtr.Size 
-				|| (!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"))))
-			{
-				return Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-			}
+        {
+            return Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+        }
 
-			return Environment.GetEnvironmentVariable("ProgramFiles");
-		}
+        /// <summary>
+        /// Get Program Files Path
+        /// </summary>
+        /// <returns>The platforms "Program Files" path.</returns>
+        static string ProgramFiles()
+        {
+            return Environment.GetEnvironmentVariable("ProgramFiles");
+        }
 		
         
         /// <summary>
@@ -236,13 +242,44 @@ namespace dotBunny.Unity
         }
 
         /// <summary>
-        /// The full path to the project
+        /// Should the parent of the unity project be used as the workspace directory.
         /// </summary>
-        static string ProjectPath
+        /// <remarks>
+        /// Usefull if you have your unity project as a sub-directory.
+        /// </remarks>
+        static bool UseParentWorkspace
+        {
+            get
+            {
+                return EditorPrefs.GetBool("VSCode_UseParentWorkspace", false);
+            }
+            set
+            {
+                EditorPrefs.SetBool("VSCode_UseParentWorkspace", value);
+            }
+        }
+
+        /// <summary>
+        /// The full path to the Unity project.
+        /// </summary>
+        static string UnityProjectPath
         {
             get
             {
                 return System.IO.Path.GetDirectoryName(UnityEngine.Application.dataPath);
+            }
+        }
+        
+        /// <summary>
+        /// The full path to the workspace.
+        /// </summary>
+        static string WorkspacePath
+        {
+            get
+            {
+                return UseParentWorkspace ? 
+                    Directory.GetParent(UnityProjectPath).FullName : 
+                    UnityProjectPath;
             }
         }
 
@@ -271,7 +308,7 @@ namespace dotBunny.Unity
         {
             get
             {
-                return ProjectPath + System.IO.Path.DirectorySeparatorChar + ".vscode";
+                return WorkspacePath + System.IO.Path.DirectorySeparatorChar + ".vscode";
             }
         }
 
@@ -410,6 +447,10 @@ namespace dotBunny.Unity
             };
 #elif UNITY_EDITOR_WIN
             {
+                ProgramFiles() + Path.DirectorySeparatorChar + "Microsoft VS Code"
+                + Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar + "code.cmd",
+                ProgramFiles() + Path.DirectorySeparatorChar + "Microsoft VS Code Insiders"
+                + Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar + "code-insiders.cmd",
                 ProgramFilesx86() + Path.DirectorySeparatorChar + "Microsoft VS Code"
                 + Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar + "code.cmd",
                 ProgramFilesx86() + Path.DirectorySeparatorChar + "Microsoft VS Code Insiders"
@@ -418,8 +459,12 @@ namespace dotBunny.Unity
 #else
             {
                 "/usr/bin/code",
+                "/usr/bin/code-insiders",
                 "/bin/code",
-                "/usr/local/bin/code"
+                "/usr/local/bin/code",
+                "/var/lib/flatpak/exports/bin/com.visualstudio.code",
+                "/snap/bin/code",
+                "/snap/bin/code-insiders"
             };
 #endif
             for(int i = 0; i < possiblePaths.Length; i++)
@@ -776,7 +821,7 @@ namespace dotBunny.Unity
             SyncSolution();
 
             // Load Project
-            CallVSCode("\"" + ProjectPath + "\"");
+            CallVSCode("\"" + WorkspacePath + "\"");
         }
 
         /// <summary>
@@ -846,6 +891,9 @@ namespace dotBunny.Unity
             EditorGUILayout.Space();
             RevertExternalScriptEditorOnExit = EditorGUILayout.Toggle(new GUIContent("Revert Script Editor On Unload", "Should the external script editor setting be reverted to its previous setting on project unload? This is useful if you do not use Code with all your projects."),RevertExternalScriptEditorOnExit);
             
+            EditorGUILayout.Space();
+            UseParentWorkspace = EditorGUILayout.Toggle(new GUIContent("Parent as workspace", "Should the parent of the project be used as the workspace directory? Usefull if you have the Unity project in a subdirectory."),UseParentWorkspace);
+
             Debug = EditorGUILayout.Toggle(new GUIContent("Output Messages To Console", "Should informational messages be sent to Unity's Console?"), Debug);
 
             WriteLaunchFile = EditorGUILayout.Toggle(new GUIContent("Always Write Launch File", "Always write the launch.json settings when entering play mode?"), WriteLaunchFile);
@@ -903,6 +951,7 @@ namespace dotBunny.Unity
                 }
             }
 
+            EditorGUILayout.EndVertical();
         }
 
         /// <summary>
@@ -921,7 +970,7 @@ namespace dotBunny.Unity
             }
 
             // current path without the asset folder
-            string appPath = ProjectPath;
+            string appPath = UnityProjectPath;
 
             // determine asset that has been double clicked in the project view
             UnityEngine.Object selected = EditorUtility.InstanceIDToObject(instanceID);
@@ -946,11 +995,11 @@ namespace dotBunny.Unity
                 string args = null;
                 if (line == -1)
                 {
-                    args = "\"" + ProjectPath + "\" \"" + completeFilepath + "\" -r";
+                    args = "\"" + WorkspacePath + "\" \"" + completeFilepath + "\" -r";
                 }
                 else
                 {
-                    args = "\"" + ProjectPath + "\" -g \"" + completeFilepath + ":" + line.ToString() + "\" -r";
+                    args = "\"" + WorkspacePath + "\" -g \"" + completeFilepath + ":" + line.ToString() + "\" -r";
                 }
                 // call 'open'
                 CallVSCode(args);
@@ -966,7 +1015,11 @@ namespace dotBunny.Unity
         /// <summary>
         /// Executed when the Editor's playmode changes allowing for capture of required data
         /// </summary>
+#if UNITY_2017_2_OR_NEWER
         static void OnPlaymodeStateChanged(UnityEditor.PlayModeStateChange state)
+#else
+        static void OnPlaymodeStateChanged()
+#endif
         {
             if (UnityEngine.Application.isPlaying && EditorApplication.isPlayingOrWillChangePlaymode)
             {
@@ -980,8 +1033,13 @@ namespace dotBunny.Unity
         [UnityEditor.Callbacks.DidReloadScripts()]
         static void OnScriptReload()
         {
+#if UNITY_2017_2_OR_NEWER
             EditorApplication.playModeStateChanged -= OnPlaymodeStateChanged;
             EditorApplication.playModeStateChanged += OnPlaymodeStateChanged;
+#else
+            EditorApplication.playmodeStateChanged -= OnPlaymodeStateChanged;
+            EditorApplication.playmodeStateChanged += OnPlaymodeStateChanged;
+#endif
         }
 
         /// <summary>
@@ -1223,10 +1281,13 @@ namespace dotBunny.Unity
                 // Always leave editor attaching on, I know, it solves the problem of needing to restart for this
                 // to actually work
                 EditorPrefs.SetBool("AllowAttachedDebuggingOfEditor", true);
-                
             }
 
-            FixUnityPreferences();
+            if (!alreadyFixedPreferences)
+            {
+                alreadyFixedPreferences = true;
+                FixUnityPreferences();
+            }
         }
 
         /// <summary>
