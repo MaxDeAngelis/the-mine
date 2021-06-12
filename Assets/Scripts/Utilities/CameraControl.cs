@@ -47,6 +47,7 @@ public class CameraControl : MonoBehaviour {
 			_mousePosition = Input.mousePosition;
 		} else if (Input.GetMouseButtonUp(1)) {
 			_isMouseDown = false;
+			MapManager.Instance.updateMap();
 		} else if (_isMouseDown) {
 			// Get the difference in mouse location
 			Vector3 move = Input.mousePosition - _mousePosition;
