@@ -67,9 +67,6 @@ half4 frag( fragmentInput i ) : COLOR
 {
 	half4 main = tex2D( _MainTex, i.uv );
 
-#if UNITY_UV_STARTS_AT_TOP
-	i.uv.y = 1.0f - i.uv.y;
-#endif
 
 	half4 lights = tex2D( _LightsTex, i.uv );
 
