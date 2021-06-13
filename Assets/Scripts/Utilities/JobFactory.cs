@@ -84,8 +84,6 @@ public class JobFactory {
 			case BUILD_TYPE.Decor:
 				switch (_decorType) {
 					case DECOR_TYPE.Lamp:
-						Debug.Log ("Factory");
-						Debug.Log (node);
 						newJob = new BuildDecorLamp (node, 2, 0);
 						break;
 				}

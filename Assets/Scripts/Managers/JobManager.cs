@@ -322,10 +322,7 @@ public class JobManager : MonoBehaviour {
     /// </summary>
     /// <param name="node">Map node</param>
     public void handleMouseEnterNode (Node node) {
-        Debug.Log ("handleMouseEnterNode");
         if (_jobFactory == null) { return; }
-
-        Debug.Log ("handleMouseEnterNode factory defined");
 
         // Set multiselect if its null
         if (_multiSelectStart == null) {
