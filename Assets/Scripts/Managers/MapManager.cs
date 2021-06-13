@@ -89,14 +89,71 @@ public class MapManager : MonoBehaviour {
         GOLD_NOISE = Random.Range (6f, 8f);
         GOLD_MOD = Random.Range (6f, 8f);
 
-        for (int x = -30; x < 30; x++) {
-            for (int y = -20; y < 20; y++) {
-                _generateChunk (new Vector2 (x, y));
-            }
-        }
+        _generateEntireMap ();
 
         updateMap ();
         _updateResources ();
+    }
+
+    private void _generateEntireMap () {
+        for (int x = -30; x < 30; x++) {
+            for (int y = -20; y < 20; y++) {
+                _generateIndividualChunk (new Vector2 (x, y));
+            }
+        }
+    }
+
+    private void _generateIndividualChunk (Vector2 chunkLoc) {
+        Vector3 nodeLocation = Vector3.zero;
+        for (int x = 0; x < 20f; x++) {
+            nodeLocation.x = (chunkLoc.x * 20f) + x;
+
+            for (int y = 0; y < 10f; y++) {
+                // Setup default ground block information
+                nodeLocation.y = (chunkLoc.y * 10f) + y;
+
+                // Make sure to start with a tunnel
+                GameObject blockToCreate = ItemManager.Instance.tunnelBlock;
+                if (y != _origin.y || Vector3.Distance (nodeLocation, _origin) > 3f) {
+                    blockToCreate = ItemManager.Instance.stoneBlock;
+                }
+
+                // Generate the actual data node and save to master list
+                MapNode mapDataNode = new MapNode (blockToCreate, new Vector2 (nodeLocation.x, nodeLocation.y));
+                _allMapNodes.Add (mapDataNode.getLocation (), mapDataNode);
+            }
+        }
+    }
+
+    private void _createVisibleMapNode (MapNode mapNodeData) {
+        // Create the new terrain node and add data to the data node
+        GameObject newTerrain = Instantiate (mapNodeData.getNodeType ()) as GameObject;
+        newTerrain.transform.position = mapNodeData.getLocation ();
+        newTerrain.transform.parent = mapContainer;
+        mapNodeData.setTerrain (newTerrain);
+
+        // Get the terrain node controller and add to visible list
+        Node mapNode = newTerrain.GetComponent<Node> ();
+        _visibleMapNodes.Add (mapNodeData.getLocation (), mapNode);
+
+        // Check all the surrounding nodes and update their accents
+        List<Node> nodes = getSurroundingNodes (mapNode);
+        mapNode.updateAccents ();
+        foreach (Node node in nodes) {
+            node.updateAccents ();
+        }
+
+        float iron = _perlinNoise (mapNodeData.getLocation ().x, mapNodeData.getLocation ().y, IRON_NOISE, IRON_MOD);
+        if (iron > 5f) {
+            mapNode.addResource (RESOURCE_TYPE.Iron, 2);
+            //setNodeMarker(mapNode, true, Color.cyan, iron.ToString());
+        }
+
+        float gold = _perlinNoise (mapNodeData.getLocation ().x, mapNodeData.getLocation ().y, GOLD_NOISE, GOLD_MOD);
+        if (gold > 5f) {
+            mapNode.addResource (RESOURCE_TYPE.Gold, 1);
+            //setNodeMarker(mapNode, true, Color.cyan, "");
+        }
     }
 
     public void updateMap () {
@@ -115,27 +172,25 @@ public class MapManager : MonoBehaviour {
         _lowerRight = new Vector3 (Mathf.Round (lowerRightRaw.x) + 1f, Mathf.Round (lowerRightRaw.y) - 1f, 0);
 
         Debug.Log ("Total nodes: " + _allMapNodes.Count);
-        _visibleMapNodes.Clear ();
-        int test = 0;
+        //_visibleMapNodes.Clear ();
+
         foreach (KeyValuePair<Vector2, MapNode> item in _allMapNodes) {
             if (!item.Value.isActive ()) {
                 //Debug.Log(item.Key);
             }
             if (_isInView (item.Key)) {
-                test += 1;
-                //item.Value.setNodeMarker (false, Color.cyan, "");
-                //item.Value.gameObject.SetActive (true);
+                if (item.Value.getTerrain () == null) {
+                    _createVisibleMapNode (item.Value);
+                } else if (_visibleMapNodes.ContainsKey (item.Value.getTerrain ().transform.position) == false) {
+                    _visibleMapNodes.Add (item.Value.getTerrain ().transform.position, item.Value.getTerrain ().GetComponent<Node> ());
+                }
 
-                GameObject newNode = Instantiate (item.Value.getNodeType ()) as GameObject;
-                newNode.transform.position = new Vector3 (item.Key.x, item.Key.y, 0f);
-                _visibleMapNodes.Add (newNode.transform.position, newNode.GetComponent<Node> ());
             } else {
-                //item.Value.setNodeMarker(true, Color.cyan, "");
-                //item.Value.gameObject.SetActive(false);
+                _visibleMapNodes.Remove (item.Key);
             }
         }
 
-        Debug.Log ("Visible nodes: " + test);
+        Debug.Log ("Visible nodes: " + _visibleMapNodes.Count);
     }
 
     private bool _isInView (Vector2 loc) {
@@ -161,59 +216,6 @@ public class MapManager : MonoBehaviour {
         //Return the noise value
         return noise * mod;
 
-    }
-
-    public void _generateChunk (Vector2 chunkLoc) {
-        Vector3 nodeLocation = Vector3.zero;
-
-        for (int x = 0; x < 20f; x++) {
-            nodeLocation.x = (chunkLoc.x * 20f) + x;
-
-            for (int y = 0; y < 10f; y++) {
-                // Setup default ground block information
-                nodeLocation.y = (chunkLoc.y * 10f) + y;
-
-                GameObject blockToCreate = ItemManager.Instance.tunnelBlock;
-                if (y != _origin.y || Vector3.Distance (nodeLocation, _origin) > 3f) {
-                    blockToCreate = ItemManager.Instance.stoneBlock;
-                }
-
-                _createMapNode (blockToCreate, nodeLocation);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Helper method to create a map node
-    /// </summary>
-    /// <param name="type">Node to create</param>
-    /// <param name="location">The location of the new node</param>
-    /// <param name="parent">The parent container</param>
-    private void _createMapNode (GameObject type, Vector3 location) {
-        MapNode mapNodeData = new MapNode (type, new Vector2 (location.x, location.y));
-        Vector2 loc = new Vector2 (location.x, location.y);
-
-        _allMapNodes.Add (loc, mapNodeData);
-
-        if (_isInView (loc)) {
-            GameObject newNode = Instantiate (mapNodeData.getNodeType ()) as GameObject;
-            newNode.transform.position = location;
-            Node mapNode = newNode.GetComponent<Node> ();
-
-            addMapNode (mapNode);
-
-            float iron = _perlinNoise (location.x, location.y, IRON_NOISE, IRON_MOD);
-            if (iron > 5f) {
-                mapNode.addResource (RESOURCE_TYPE.Iron, 2);
-                //setNodeMarker(mapNode, true, Color.cyan, iron.ToString());
-            }
-
-            float gold = _perlinNoise (location.x, location.y, GOLD_NOISE, GOLD_MOD);
-            if (gold > 5f) {
-                mapNode.addResource (RESOURCE_TYPE.Gold, 1);
-                //setNodeMarker(mapNode, true, Color.cyan, "");
-            }
-        }
     }
 
     /// <summary>
@@ -272,9 +274,7 @@ public class MapManager : MonoBehaviour {
     /// <returns>The node</returns>
     /// <param name="location">The location of the node you want</param>
     public Node getNode (Vector3 location) {
-
         Node returnNode = null;
-        Debug.Log ("MapNodes Count:" + _visibleMapNodes.Count);
 
         if (_visibleMapNodes.ContainsKey (location)) {
             returnNode = _visibleMapNodes[location];
@@ -370,7 +370,6 @@ public class MapManager : MonoBehaviour {
                 foundNodes.Add ("BOTTOM_LEFT", _visibleMapNodes[bottomLeft]);
             }
         }
-
         return new List<Node> (foundNodes.Values);
     }
 
@@ -388,6 +387,8 @@ public class MapManager : MonoBehaviour {
         foreach (Node node in nodes) {
             node.updateAccents ();
         }
+
+        _allMapNodes[new Vector2 (newNode.transform.position.x, newNode.transform.position.y)].setTerrain (newNode.gameObject);
     }
 
     /// <summary>
@@ -396,6 +397,7 @@ public class MapManager : MonoBehaviour {
     /// <param name="node">Node.</param>
     public void removeMapNode (Node node) {
         if (_visibleMapNodes.ContainsKey (node.transform.position)) {
+            _allMapNodes[new Vector2 (node.transform.position.x, node.transform.position.y)].setTerrain (null);
             _visibleMapNodes.Remove (node.transform.position);
         }
     }
