@@ -6,7 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 [Serializable]
-public class MapNode {
+public class MapDataNode {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// 								     		PRIVATE VARIABLES											     ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,12 +15,10 @@ public class MapNode {
     GameObject _terrain = null;
     Vector2 _location;
 
-    bool _isActive = false;
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// 								     		   CONSTRUCTOR   											     ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public MapNode (GameObject type, Vector2 location) {
+    public MapDataNode (GameObject type, Vector2 location) {
         _nodeType = type;
         _location = location;
     }
@@ -46,9 +44,4 @@ public class MapNode {
     public void setActive (bool value) {
         _isActive = value;
     }
-
-    public bool isActive () {
-        return _isActive;
-    }
-
 }
