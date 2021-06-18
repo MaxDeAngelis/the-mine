@@ -12,7 +12,7 @@ public class MapDataNode {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     GameObject _nodeType;
 
-    GameObject _terrain = null;
+    Node _terrain = null;
     Vector2 _location;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,11 +26,11 @@ public class MapDataNode {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// 								     		PUBLIC FUNCTIONS											     ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void setTerrain (GameObject terrain) {
+    public void setTerrain (Node terrain) {
         _terrain = terrain;
     }
 
-    public GameObject getTerrain () {
+    public Node getTerrain () {
         return _terrain;
     }
     public Vector2 getLocation () {
@@ -41,7 +41,14 @@ public class MapDataNode {
         return _nodeType;
     }
 
-    public void setActive (bool value) {
-        _isActive = value;
+    public void hide () {
+        if (_terrain != null) {
+            _terrain.gameObject.SetActive (false);
+        }
+    }
+    public void show () {
+        if (_terrain != null) {
+            _terrain.gameObject.SetActive (true);
+        }
     }
 }

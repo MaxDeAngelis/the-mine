@@ -63,6 +63,14 @@ public class Map {
     private void _createVisibleMapNode (MapDataNode mapNodeData) {
         Node mapNode = _createMapNode (mapNodeData);
         _visibleNodes.Add (mapNodeData.getLocation (), mapNode);
+
+        // Check all the surrounding nodes and update their accents
+        // FIXME: This should probably only be done on update of the map and only for visible nodes
+        List<Node> nodes = MapManager.Instance.getSurroundingNodes (mapNode);
+        mapNode.updateAccents ();
+        foreach (Node node in nodes) {
+            node.updateAccents ();
+        }
     }
 
     private Node _createMapNode (MapDataNode mapNodeData) {
@@ -70,17 +78,10 @@ public class Map {
         GameObject newTerrain = GameObject.Instantiate (mapNodeData.getNodeType ()) as GameObject;
         newTerrain.transform.position = mapNodeData.getLocation ();
         newTerrain.transform.parent = _mapContainer;
-        mapNodeData.setTerrain (newTerrain);
 
         // Get the terrain node controller and add to visible list
         Node mapNode = newTerrain.GetComponent<Node> ();
-
-        // Check all the surrounding nodes and update their accents
-        List<Node> nodes = MapManager.Instance.getSurroundingNodes (mapNode);
-        mapNode.updateAccents ();
-        foreach (Node node in nodes) {
-            node.updateAccents ();
-        }
+        mapNodeData.setTerrain (mapNode);
 
         float iron = _perlinNoise (mapNodeData.getLocation ().x, mapNodeData.getLocation ().y, IRON_NOISE, IRON_MOD);
         if (iron > 5f) {
@@ -159,11 +160,13 @@ public class Map {
                 if (item.Value.getTerrain () == null) {
                     _createVisibleMapNode (item.Value);
                 } else if (_visibleNodes.ContainsKey (item.Value.getTerrain ().transform.position) == false) {
-                    _visibleNodes.Add (item.Value.getTerrain ().transform.position, item.Value.getTerrain ().GetComponent<Node> ());
+                    item.Value.show ();
+                    _visibleNodes.Add (item.Value.getTerrain ().transform.position, item.Value.getTerrain ());
                 }
 
             } else {
                 _visibleNodes.Remove (item.Key);
+                item.Value.hide ();
             }
         }
 
@@ -171,16 +174,26 @@ public class Map {
     }
 
     public void add (Node newNode) {
-        _visibleNodes.Add (newNode.transform.position, newNode);
         newNode.transform.parent = _mapContainer;
-        _allDataNodes[new Vector2 (newNode.transform.position.x, newNode.transform.position.y)].setTerrain (newNode.gameObject);
+        _allDataNodes[new Vector2 (newNode.transform.position.x, newNode.transform.position.y)].setTerrain (newNode);
+
+        // Everytime a node is added update the accents
+        List<Node> surroundingNodes = getSurroundingNodes (newNode, true, false);
+        newNode.updateAccents ();
+        foreach (Node node in surroundingNodes) {
+            node.updateAccents ();
+        }
     }
 
-    public void remove (Node node) {
-        if (_visibleNodes.ContainsKey (node.transform.position)) {
-            _allDataNodes[new Vector2 (node.transform.position.x, node.transform.position.y)].setTerrain (null);
-            _visibleNodes.Remove (node.transform.position);
-        }
+    public void remove (Node nodeToRemove) {
+        // FIXME: Trying to update the accents on remove causes the node to be created
+        // List<Node> surroundingNodes = getSurroundingNodes (nodeToRemove, true, false);
+
+        _allDataNodes[new Vector2 (nodeToRemove.transform.position.x, nodeToRemove.transform.position.y)].setTerrain (null);
+        GameObject.Destroy (nodeToRemove.gameObject);
+        /* foreach (Node node in surroundingNodes) {
+            node.updateAccents ();
+        } */
     }
 
     /// <summary>
@@ -211,41 +224,48 @@ public class Map {
         Vector3 left = root.transform.position + Vector3.left;
         Vector3 right = root.transform.position + Vector3.right;
 
-        if (_visibleNodes.ContainsKey (top)) {
-            foundNodes.Add ("TOP", _visibleNodes[top]);
+        Node topNode = get (top);
+        Node bottomNode = get (bottom);
+        Node leftNode = get (left);
+        Node rightNode = get (right);
+        // FIXME: See if we can not have null checks and just manage the total list
+        if (topNode != null) {
+            foundNodes.Add ("TOP", topNode);
         }
-        if (_visibleNodes.ContainsKey (bottom)) {
-            foundNodes.Add ("BOTTOM", _visibleNodes[bottom]);
+        if (bottomNode != null) {
+            foundNodes.Add ("BOTTOM", bottomNode);
         }
-        if (_visibleNodes.ContainsKey (left)) {
-            foundNodes.Add ("LEFT", _visibleNodes[left]);
+        if (leftNode != null) {
+            foundNodes.Add ("LEFT", leftNode);
         }
-        if (_visibleNodes.ContainsKey (right)) {
-            foundNodes.Add ("RIGHT", _visibleNodes[right]);
+        if (rightNode != null) {
+            foundNodes.Add ("RIGHT", rightNode);
         }
 
         // If the diagonal param is set then return diagonal locations
         if (returnDiagonals) {
             // Diagonal node locations
-            Vector3 topRight = top + Vector3.right;
-            Vector3 topLeft = top + Vector3.left;
-            Vector3 bottomRight = bottom + Vector3.right;
-            Vector3 bottomLeft = bottom + Vector3.left;
+            Node topRight = get (top + Vector3.right);
+            Node topLeft = get (top + Vector3.left);
+            Node bottomRight = get (bottom + Vector3.right);
+            Node bottomLeft = get (bottom + Vector3.left);
 
             // Check the diagonal nodes to make sure they can be accessed
-            if (_visibleNodes.ContainsKey (topRight) && (!checkDiagonalAccessability || _isDiagonalAccessible (_visibleNodes[topRight], foundNodes["TOP"], foundNodes["RIGHT"]))) {
-                foundNodes.Add ("TOP_RIGHT", _visibleNodes[topRight]);
+            if (topRight != null && (!checkDiagonalAccessability || _isDiagonalAccessible (topRight, foundNodes["TOP"], foundNodes["RIGHT"]))) {
+                foundNodes.Add ("TOP_RIGHT", topRight);
             }
-            if (_visibleNodes.ContainsKey (topLeft) && (!checkDiagonalAccessability || _isDiagonalAccessible (_visibleNodes[topLeft], foundNodes["TOP"], foundNodes["LEFT"]))) {
-                foundNodes.Add ("TOP_LEFT", _visibleNodes[topLeft]);
+            if (topLeft != null && (!checkDiagonalAccessability || _isDiagonalAccessible (topLeft, foundNodes["TOP"], foundNodes["LEFT"]))) {
+                foundNodes.Add ("TOP_LEFT", topLeft);
             }
-            if (_visibleNodes.ContainsKey (bottomRight) && (!checkDiagonalAccessability || _isDiagonalAccessible (_visibleNodes[bottomRight], foundNodes["BOTTOM"], foundNodes["RIGHT"]))) {
-                foundNodes.Add ("BOTTOM_RIGHT", _visibleNodes[bottomRight]);
+            if (bottomRight != null && (!checkDiagonalAccessability || _isDiagonalAccessible (bottomRight, foundNodes["BOTTOM"], foundNodes["RIGHT"]))) {
+                foundNodes.Add ("BOTTOM_RIGHT", bottomRight);
             }
-            if (_visibleNodes.ContainsKey (bottomLeft) && (!checkDiagonalAccessability || _isDiagonalAccessible (_visibleNodes[bottomLeft], foundNodes["BOTTOM"], foundNodes["LEFT"]))) {
-                foundNodes.Add ("BOTTOM_LEFT", _visibleNodes[bottomLeft]);
+            if (bottomLeft != null && (!checkDiagonalAccessability || _isDiagonalAccessible (bottomLeft, foundNodes["BOTTOM"], foundNodes["LEFT"]))) {
+                foundNodes.Add ("BOTTOM_LEFT", bottomLeft);
             }
         }
+
+        Debug.Log (new List<Node> (foundNodes.Values));
         return new List<Node> (foundNodes.Values);
     }
 }
