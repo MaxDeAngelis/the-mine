@@ -178,14 +178,6 @@ public class MapManager : MonoBehaviour {
     /// <param name="newNode">New node.</param>
     public void addMapNode (Node newNode) {
         _gameMap.add (newNode);
-
-        List<Node> nodes = getSurroundingNodes (newNode);
-
-        // Everytime a node is added update the accents
-        newNode.updateAccents ();
-        foreach (Node node in nodes) {
-            node.updateAccents ();
-        }
     }
 
     /// <summary>
