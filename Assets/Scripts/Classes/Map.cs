@@ -119,7 +119,7 @@ public class Map {
     /// <returns><c>true</c>, if both nodes are walkable, <c>false</c> otherwise.</returns>
     /// <param name="first">First node location to check</param>
     /// <param name="second">Second node location to check</param>
-    private bool _isDiagonalAccessible (Node nodeToCheck, Node testOne, Node testTwo) {
+    private bool _isDiagonalAccessible (MapDataNode nodeToCheck, MapDataNode testOne, MapDataNode testTwo) {
         bool returnValue = false;
 
         if (testOne != null && testTwo != null && nodeToCheck.isTravelable () && testOne.isTravelable () && testTwo.isTravelable ()) {
@@ -154,7 +154,9 @@ public class Map {
         _upperLeft = new Vector3 (Mathf.Round (upperLeftRaw.x) - 1f, Mathf.Round (upperLeftRaw.y) + 1f, 0);
         _lowerRight = new Vector3 (Mathf.Round (lowerRightRaw.x) + 1f, Mathf.Round (lowerRightRaw.y) - 1f, 0);
 
-        Debug.Log ("Total nodes: " + _allDataNodes.Count);
+        // Debug.Log (_upperLeft);
+        // Debug.Log (_lowerRight);
+        Debug.Log ("Total Nodes " + _allDataNodes.Count);
         foreach (KeyValuePair<Vector2, MapDataNode> item in _allDataNodes) {
             if (_isInView (item.Key)) {
                 if (item.Value.getTerrain () == null) {
@@ -165,12 +167,11 @@ public class Map {
                 }
 
             } else {
-                _visibleNodes.Remove (item.Key);
                 item.Value.hide ();
+                _visibleNodes.Remove (item.Key);
             }
         }
-
-        Debug.Log ("Visible nodes: " + _visibleNodes.Count);
+        Debug.Log ("Visual Nodes " + _visibleNodes.Count);
     }
 
     public void add (Node newNode) {
@@ -216,7 +217,7 @@ public class Map {
     }
 
     public List<Node> getSurroundingNodes (Node root, bool returnDiagonals, bool checkDiagonalAccessability) {
-        Dictionary<string, Node> foundNodes = new Dictionary<string, Node> ();
+        Dictionary<string, MapDataNode> foundNodes = new Dictionary<string, MapDataNode> ();
 
         // Directly adjacent node locations
         Vector3 top = root.transform.position + Vector3.up;
@@ -224,48 +225,47 @@ public class Map {
         Vector3 left = root.transform.position + Vector3.left;
         Vector3 right = root.transform.position + Vector3.right;
 
-        Node topNode = get (top);
-        Node bottomNode = get (bottom);
-        Node leftNode = get (left);
-        Node rightNode = get (right);
-        // FIXME: See if we can not have null checks and just manage the total list
-        if (topNode != null) {
-            foundNodes.Add ("TOP", topNode);
-        }
-        if (bottomNode != null) {
-            foundNodes.Add ("BOTTOM", bottomNode);
-        }
-        if (leftNode != null) {
-            foundNodes.Add ("LEFT", leftNode);
-        }
-        if (rightNode != null) {
-            foundNodes.Add ("RIGHT", rightNode);
-        }
+        foundNodes.Add ("TOP", _allDataNodes[(Vector2) top]);
+        foundNodes.Add ("BOTTOM", _allDataNodes[(Vector2) bottom]);
+        foundNodes.Add ("LEFT", _allDataNodes[(Vector2) left]);
+        foundNodes.Add ("RIGHT", _allDataNodes[(Vector2) right]);
 
         // If the diagonal param is set then return diagonal locations
         if (returnDiagonals) {
             // Diagonal node locations
-            Node topRight = get (top + Vector3.right);
-            Node topLeft = get (top + Vector3.left);
-            Node bottomRight = get (bottom + Vector3.right);
-            Node bottomLeft = get (bottom + Vector3.left);
+            MapDataNode topRight = _allDataNodes[(Vector2) (top + Vector3.right)];
+            MapDataNode topLeft = _allDataNodes[(Vector2) (top + Vector3.left)];
+            MapDataNode bottomRight = _allDataNodes[(Vector2) (bottom + Vector3.right)];
+            MapDataNode bottomLeft = _allDataNodes[(Vector2) (bottom + Vector3.left)];
 
             // Check the diagonal nodes to make sure they can be accessed
-            if (topRight != null && (!checkDiagonalAccessability || _isDiagonalAccessible (topRight, foundNodes["TOP"], foundNodes["RIGHT"]))) {
+            if (!checkDiagonalAccessability || _isDiagonalAccessible (topRight, foundNodes["TOP"], foundNodes["RIGHT"])) {
                 foundNodes.Add ("TOP_RIGHT", topRight);
             }
-            if (topLeft != null && (!checkDiagonalAccessability || _isDiagonalAccessible (topLeft, foundNodes["TOP"], foundNodes["LEFT"]))) {
+            if (!checkDiagonalAccessability || _isDiagonalAccessible (topLeft, foundNodes["TOP"], foundNodes["LEFT"])) {
                 foundNodes.Add ("TOP_LEFT", topLeft);
             }
-            if (bottomRight != null && (!checkDiagonalAccessability || _isDiagonalAccessible (bottomRight, foundNodes["BOTTOM"], foundNodes["RIGHT"]))) {
+            if (!checkDiagonalAccessability || _isDiagonalAccessible (bottomRight, foundNodes["BOTTOM"], foundNodes["RIGHT"])) {
                 foundNodes.Add ("BOTTOM_RIGHT", bottomRight);
             }
-            if (bottomLeft != null && (!checkDiagonalAccessability || _isDiagonalAccessible (bottomLeft, foundNodes["BOTTOM"], foundNodes["LEFT"]))) {
+            if (!checkDiagonalAccessability || _isDiagonalAccessible (bottomLeft, foundNodes["BOTTOM"], foundNodes["LEFT"])) {
                 foundNodes.Add ("BOTTOM_LEFT", bottomLeft);
             }
         }
 
-        Debug.Log (new List<Node> (foundNodes.Values));
-        return new List<Node> (foundNodes.Values);
+        // Loop over the found surroundinng nodes and if the terrain is not found
+        // then create it but make it hidden since if it was visible it would exist.
+        List<Node> goodNodes = new List<Node> ();
+        foreach (KeyValuePair<string, MapDataNode> item in foundNodes) {
+            if (item.Value != null) {
+                if (item.Value.getTerrain () == null) {
+                    _createMapNode (item.Value);
+                    item.Value.hide ();
+                }
+                goodNodes.Add (item.Value.getTerrain ());
+            }
+        }
+
+        return goodNodes;
     }
 }

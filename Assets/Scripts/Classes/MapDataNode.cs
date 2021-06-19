@@ -41,6 +41,13 @@ public class MapDataNode {
         return _nodeType;
     }
 
+    public bool isTravelable () {
+        if (_terrain != null) {
+            return _terrain.isTravelable ();
+        }
+        return _nodeType.GetComponent<Node> ().isTravelable ();
+    }
+
     public void hide () {
         if (_terrain != null) {
             _terrain.gameObject.SetActive (false);
